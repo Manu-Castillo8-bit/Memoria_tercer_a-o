@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bitácora académica interactiva: módulos de mantenimiento, bases de datos, documentación, desarrollo de software, cooperativismo e inglés técnico.">
+  <meta name="theme-color" content="#07111f">
+  <title>NEXUS | Bitácora académica</title>
+  <style>
+    /* =========================================================
+       NEXUS · ESTILOS EN UN SOLO ARCHIVO
+       Paleta: azul noche, cian y violeta. Diseño adaptable.
+       ========================================================= */
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0b192b;
+      --surface: rgba(14, 31, 51, .88);
+      --surface-2: #10243a;
+      --surface-3: #142b43;
+      --text: #e8f3ff;
+      --muted: #9bb0c6;
+      --muted-2: #70869e;
+      --line: rgba(144, 190, 224, .16);
+      --cyan: #43e0ec;
+      --blue: #4c8dff;
+      --violet: #a78bfa;
+      --green: #50d6a2;
+      --amber: #ffc76a;
+      --danger: #ff7b89;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .26);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --focus: 0 0 0 3px rgba(67, 224, 236, .30);
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #edf4fb;
+      --bg-soft: #e4eef8;
+      --surface: rgba(255, 255, 255, .92);
+      --surface-2: #f5f9fd;
+      --surface-3: #e9f2fa;
+      --text: #10243a;
+      --muted: #4d657d;
+      --muted-2: #60788e;
+      --line: rgba(24, 61, 91, .16);
+      --cyan: #087e91;
+      --blue: #245fc4;
+      --violet: #7151c8;
+      --green: #087b59;
+      --amber: #945900;
+      --danger: #b8324a;
+      --shadow: 0 18px 48px rgba(27, 59, 90, .11);
+      --focus: 0 0 0 3px rgba(8, 126, 145, .18);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(29, 117, 161, .18), transparent 34rem),
+        radial-gradient(ellipse at 92% 8%, rgba(114, 78, 193, .16), transparent 31rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      transition: background .25s ease, color .25s ease;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .15;
+      background-image: linear-gradient(rgba(140,190,220,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(140,190,220,.08) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 75%);
+    }
+    button, input, select, textarea { font: inherit; }
+    button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+    a { color: var(--cyan); }
+    a:hover { color: var(--blue); }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+    .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(18px);
+    }
+    .topbar-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
+    .brand-mark {
+      display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px;
+      border: 1px solid rgba(67,224,236,.45); border-radius: 13px;
+      color: #061722; font-weight: 900; letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      box-shadow: 0 0 25px rgba(67,224,236,.20);
+    }
+    .brand-copy { display: grid; line-height: 1.1; }
+    .brand-copy strong { font-size: .95rem; letter-spacing: .15em; }
+    .brand-copy span { margin-top: 5px; color: var(--muted); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn, .ghost-btn, .primary-btn, .soft-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 42px; border: 1px solid var(--line); border-radius: 12px;
+      padding: 9px 14px; color: var(--text); background: var(--surface-2);
+      cursor: pointer; text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .icon-btn { width: 42px; padding: 0; font-size: 1.05rem; }
+    .ghost-btn:hover, .icon-btn:hover, .soft-btn:hover { border-color: var(--cyan); transform: translateY(-1px); }
+    .primary-btn { border-color: transparent; color: #061722; font-weight: 800; background: linear-gradient(100deg, var(--cyan), #75b8ff); }
+    .primary-btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
+    .soft-btn { background: rgba(67,224,236,.08); border-color: rgba(67,224,236,.22); }
+    .hero { padding: 62px 0 28px; }
+    .hero-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, .75fr); gap: 30px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--cyan); font-size: .76rem; letter-spacing: .18em; font-weight: 800; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 25px; height: 1px; background: var(--cyan); }
+    h1 { max-width: 740px; margin: 16px 0 15px; font-size: clamp(2.45rem, 6vw, 4.8rem); line-height: .99; letter-spacing: -.065em; }
+    h1 .gradient { color: transparent; background: linear-gradient(100deg, var(--cyan), #80aaff 58%, var(--violet)); background-clip: text; -webkit-background-clip: text; }
+    .hero-description { max-width: 690px; color: var(--muted); font-size: 1.05rem; }
+    .hero-note { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--surface); font-size: .76rem; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .dashboard-card {
+      position: relative; overflow: hidden; padding: 24px; border: 1px solid rgba(91,180,220,.25);
+      border-radius: var(--radius); background: linear-gradient(145deg, rgba(24,70,100,.54), rgba(37,37,81,.32)), var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .dashboard-card::after { content: ""; position: absolute; width: 180px; height: 180px; right: -60px; top: -80px; border: 1px solid rgba(67,224,236,.22); border-radius: 50%; box-shadow: 0 0 0 22px rgba(67,224,236,.035), 0 0 0 48px rgba(67,224,236,.025); }
+    .dashboard-top { display: flex; justify-content: space-between; gap: 14px; color: var(--muted); font-size: .78rem; }
+    .dashboard-value { display: flex; align-items: baseline; gap: 8px; margin: 18px 0 4px; }
+    .dashboard-value strong { font-size: 3.5rem; line-height: 1; letter-spacing: -.07em; }
+    .dashboard-value span { color: var(--muted); font-size: .9rem; }
+    .progress-track { width: 100%; height: 9px; overflow: hidden; border-radius: 99px; background: rgba(130,170,200,.16); }
+    .progress-fill { width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--blue), var(--violet)); transition: width .3s ease; }
+    .dashboard-bottom { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: var(--muted); font-size: .78rem; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 34px 0 18px; }
+    .section-heading h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: -.04em; }
+    .section-heading p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
+    .filters {
+      display: grid; grid-template-columns: minmax(200px, 1fr) 190px 190px auto; gap: 10px;
+      padding: 13px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow);
+    }
+    .field-wrap { position: relative; }
+    .field-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted-2); pointer-events: none; }
+    .control, .filters select {
+      width: 100%; min-height: 44px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 11px;
+      color: var(--text); background: var(--surface-2);
+    }
+    .search-control { padding-left: 40px; }
+    .control::placeholder { color: var(--muted-2); }
+    .module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0 56px; }
+    .module-card {
+      position: relative; display: flex; flex-direction: column; min-height: 320px; overflow: hidden;
+      padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+      box-shadow: 0 12px 35px rgba(0,0,0,.10); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .module-card:hover { transform: translateY(-4px); border-color: rgba(67,224,236,.48); box-shadow: var(--shadow); }
+    .module-card::before { content: ""; position: absolute; width: 130px; height: 130px; right: -58px; top: -58px; border: 1px solid var(--card-accent, var(--cyan)); border-radius: 50%; opacity: .20; box-shadow: 0 0 0 18px color-mix(in srgb, var(--card-accent, var(--cyan)) 8%, transparent); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .module-code { color: var(--card-accent, var(--cyan)); font-weight: 850; font-size: .78rem; letter-spacing: .12em; }
+    .module-symbol { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: var(--card-accent, var(--cyan)); background: color-mix(in srgb, var(--card-accent, var(--cyan)) 12%, transparent); font-size: 1.28rem; }
+    .teacher-label { margin-top: 15px; color: var(--muted); font-size: .76rem; }
+    .module-card h3 { margin: 5px 0 8px; font-size: 1.16rem; line-height: 1.22; letter-spacing: -.025em; }
+    .module-card .description { margin: 0 0 16px; color: var(--muted); font-size: .86rem; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; margin-bottom: 18px; }
+    .tag { padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: var(--surface-2); font-size: .68rem; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-stats { color: var(--muted-2); font-size: .72rem; }
+    .completed-mark { color: var(--green); font-size: .74rem; font-weight: 750; }
+    .empty-state { grid-column: 1 / -1; padding: 50px 20px; border: 1px dashed var(--line); border-radius: var(--radius); text-align: center; color: var(--muted); }
+    .guide-strip { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 14px; margin: 0 0 56px; }
+    .guide-item { padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }
+    .guide-item .guide-icon { font-size: 1.25rem; }
+    .guide-item h3 { margin: 8px 0 5px; font-size: .95rem; }
+    .guide-item p { margin: 0; color: var(--muted); font-size: .8rem; }
+    .guide-item strong { color: var(--cyan); }
+    .rubric-section { margin: 0 0 58px; }
+    .rubric-header { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 16px; }
+    .rubric-header h2 { margin: 0; font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.04em; }
+    .rubric-header p { margin: 5px 0 0; color: var(--muted); font-size: .86rem; }
+    .rubric-score { display: flex; align-items: baseline; gap: 6px; padding: 10px 14px; border: 1px solid rgba(67,224,236,.28); border-radius: 13px; background: rgba(67,224,236,.07); white-space: nowrap; }
+    .rubric-score strong { color: var(--cyan); font-size: 1.65rem; }
+    .rubric-score span { color: var(--muted); font-size: .76rem; }
+    .rubric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .rubric-card { display: flex; align-items: start; gap: 13px; padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+    .rubric-card input { width: 18px; height: 18px; margin: 3px 0 0; flex: 0 0 auto; accent-color: var(--cyan); }
+    .rubric-copy { flex: 1; }
+    .rubric-copy strong { display: block; font-size: .87rem; }
+    .rubric-copy p { margin: 4px 0 0; color: var(--muted); font-size: .76rem; }
+    .rubric-points { padding: 4px 7px; border: 1px solid var(--line); border-radius: 8px; color: var(--cyan); font-size: .7rem; font-weight: 800; white-space: nowrap; }
+    footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .78rem; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .footer-inner strong { color: var(--text); letter-spacing: .12em; }
+
+    /* Ficha del módulo */
+    dialog {
+      width: min(900px, calc(100% - 24px)); max-width: 900px; max-height: min(90vh, 920px); padding: 0;
+      border: 1px solid var(--line); border-radius: 22px; color: var(--text); background: var(--bg-soft); box-shadow: 0 30px 100px rgba(0,0,0,.48);
+    }
+    dialog::backdrop { background: rgba(1, 8, 18, .72); backdrop-filter: blur(7px); }
+    .dialog-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: start; justify-content: space-between; gap: 15px; padding: 22px 24px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-soft) 93%, transparent); backdrop-filter: blur(12px); }
+    .dialog-head h2 { margin: 4px 0 0; font-size: clamp(1.35rem, 3vw, 1.9rem); line-height: 1.15; }
+    .dialog-content { padding: 22px 24px 28px; }
+    .dialog-intro { margin: 0 0 20px; color: var(--muted); }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .detail-panel { padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .detail-panel h3 { display: flex; align-items: center; gap: 9px; margin: 0 0 11px; font-size: .95rem; }
+    .detail-panel h3 span { color: var(--cyan); }
+    .detail-panel ul { margin: 0; padding-left: 19px; color: var(--muted); font-size: .84rem; }
+    .detail-panel li { margin: 7px 0; }
+    .resource-list { display: grid; gap: 9px; }
+    .resource-link { display: flex; align-items: start; justify-content: space-between; gap: 10px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--text); background: var(--surface-2); text-decoration: none; font-size: .82rem; }
+    .resource-link:hover { border-color: var(--cyan); }
+    .resource-link small { display: block; margin-top: 3px; color: var(--muted-2); }
+    .evidence-box { margin-top: 13px; padding: 17px; border: 1px solid rgba(80,214,162,.26); border-radius: 16px; background: color-mix(in srgb, var(--green) 6%, var(--surface)); }
+    .evidence-box h3 { margin: 0 0 7px; font-size: .96rem; }
+    .evidence-box p { margin: 0; color: var(--muted); font-size: .85rem; }
+    .editor-section { margin-top: 18px; padding: 19px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .editor-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .editor-title h3 { margin: 0; font-size: 1rem; }
+    .editor-title small { color: var(--muted-2); font-size: .72rem; }
+    .field-label { display: block; margin: 13px 0 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }
+    textarea.control { min-height: 110px; resize: vertical; line-height: 1.5; }
+    .editor-help { margin: 6px 0 0; color: var(--muted-2); font-size: .72rem; }
+    .upload-row { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
+    input[type="file"] { max-width: 100%; padding: 8px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); background: var(--surface-2); font-size: .76rem; }
+    .image-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 9px; margin-top: 12px; }
+    .preview-tile { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); }
+    .preview-tile img { display: block; width: 100%; height: 88px; object-fit: cover; }
+    .preview-tile span { display: block; overflow: hidden; padding: 6px 8px; color: var(--muted); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+    .doc-form { display: grid; grid-template-columns: minmax(130px, .8fr) minmax(180px, 1.3fr) auto; gap: 8px; }
+    .user-docs { display: grid; gap: 7px; margin-top: 12px; }
+    .user-doc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: .8rem; }
+    .user-doc a { overflow-wrap: anywhere; }
+    .remove-btn { padding: 4px 8px; border: 0; border-radius: 8px; color: var(--danger); background: transparent; cursor: pointer; }
+    .quiz-section { margin-top: 18px; padding: 19px; border: 1px solid rgba(167,139,250,.25); border-radius: 16px; background: color-mix(in srgb, var(--violet) 5%, var(--surface)); }
+    .quiz-section h3 { margin: 0 0 5px; font-size: 1rem; }
+    .quiz-section > p { margin: 0 0 14px; color: var(--muted); font-size: .8rem; }
+    .question { padding: 13px 0; border-top: 1px solid var(--line); }
+    .question:first-of-type { border-top: 0; }
+    .question legend { padding: 0; font-size: .85rem; font-weight: 750; }
+    .answers { display: grid; gap: 7px; margin-top: 9px; }
+    .answer { display: flex; align-items: start; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: var(--surface-2); cursor: pointer; font-size: .8rem; }
+    .answer:has(input:checked) { border-color: var(--violet); color: var(--text); background: color-mix(in srgb, var(--violet) 10%, var(--surface-2)); }
+    .answer input { margin: 4px 0 0; accent-color: var(--violet); }
+    .quiz-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .quiz-feedback { display: none; margin-top: 13px; padding: 12px; border-radius: 11px; background: var(--surface-2); font-size: .82rem; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback strong { color: var(--cyan); }
+    .feedback-line { margin: 5px 0; color: var(--muted); }
+    .dialog-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .save-note { color: var(--muted-2); font-size: .72rem; }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 50; max-width: min(360px, calc(100% - 40px)); padding: 12px 16px; border: 1px solid rgba(67,224,236,.35); border-radius: 12px; color: var(--text); background: var(--surface-2); box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .22s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 900px) {
+      .hero-layout { grid-template-columns: 1fr; }
+      .dashboard-card { max-width: 560px; }
+      .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .guide-strip { grid-template-columns: 1fr 1fr; }
+      .guide-item:first-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 600px) {
+      .container { width: min(100% - 26px, 520px); }
+      .topbar-inner { min-height: 64px; }
+      .brand-copy span { font-size: .58rem; }
+      .top-actions .top-label { display: none; }
+      .hero { padding-top: 42px; }
+      h1 { font-size: clamp(2.25rem, 13vw, 3.4rem); }
+      .hero-description { font-size: .93rem; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .filters { grid-template-columns: 1fr; }
+      .module-grid { grid-template-columns: 1fr; }
+      .module-card { min-height: auto; }
+      .guide-strip { grid-template-columns: 1fr; }
+      .guide-item:first-child { grid-column: auto; }
+      .rubric-header { align-items: start; flex-direction: column; }
+      .rubric-grid { grid-template-columns: 1fr; }
+      .dialog-head { padding: 17px; }
+      .dialog-content { padding: 16px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .doc-form { grid-template-columns: 1fr; }
+      .upload-row { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; align-items: start; }
+      .dashboard-value strong { font-size: 2.8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#inicio" aria-label="NEXUS, ir al inicio">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span class="brand-copy"><strong>NEXUS</strong><span>Bitácora académica</span></span>
+      </a>
+      <div class="top-actions">
+        <a class="ghost-btn" href="#modulos"><span aria-hidden="true">▦</span><span class="top-label">Explorar módulos</span></a>
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="Cambiar a modo claro" title="Cambiar tema">☼</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio" class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-layout">
+        <div>
+          <div class="eyebrow">Mapa de aprendizaje · 2026</div>
+          <h1 id="hero-title">Aprende. Construye.<br><span class="gradient">Deja evidencia.</span></h1>
+          <p class="hero-description">Un espacio central para organizar tus módulos técnicos, documentar lo aprendido y comprobar tus conocimientos. Abre cada ficha para consultar los recursos, completar tu resumen personal y guardar tus evidencias.</p>
+          <div class="hero-note">
+            <span class="pill"><span class="status-dot"></span> Progreso guardado en este dispositivo</span>
+            <span class="pill">8 módulos organizados</span>
+            <span class="pill">Quizzes con retroalimentación</span>
+          </div>
+        </div>
+        <aside class="dashboard-card" aria-label="Resumen del progreso">
+          <div class="dashboard-top"><span>VISTA GENERAL</span><span>● EN SEGUIMIENTO</span></div>
+          <div class="dashboard-value"><strong id="progressPercent">0%</strong><span>completado</span></div>
+          <div class="progress-track" role="progressbar" aria-label="Progreso de módulos" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="dashboard-bottom"><span id="completedCount">0 de 8 módulos listos</span><span id="quizCount">0 quizzes realizados</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="modulos" aria-labelledby="modules-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Tu ruta técnica</div>
+          <h2 id="modules-title">Explora tus módulos</h2>
+          <p>Busca por tema, filtra por docente o por área y abre una ficha para trabajar.</p>
+        </div>
+        <span class="pill">Javier <span aria-hidden="true">·</span> Arcides</span>
+      </div>
+
+      <div class="filters" role="search" aria-label="Buscar y filtrar módulos">
+        <div class="field-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <label class="sr-only" for="searchInput">Buscar módulos</label>
+          <input class="control search-control" id="searchInput" type="search" placeholder="Buscar módulo, tema o herramienta..." autocomplete="off">
+        </div>
+        <div>
+          <label class="sr-only" for="teacherFilter">Filtrar por docente</label>
+          <select id="teacherFilter" aria-label="Filtrar por docente">
+            <option value="all">Todos los docentes</option>
+            <option value="Javier">Profe Javier</option>
+            <option value="Arcides">Profe Arcides</option>
+          </select>
+        </div>
+        <div>
+          <label class="sr-only" for="areaFilter">Filtrar por área</label>
+          <select id="areaFilter" aria-label="Filtrar por área">
+            <option value="all">Todas las áreas</option>
+            <option value="soporte">Soporte técnico</option>
+            <option value="datos">Bases de datos</option>
+            <option value="documentacion">Documentación</option>
+            <option value="software">Desarrollo de software</option>
+            <option value="cooperativismo">Cooperativismo</option>
+            <option value="ingles">Inglés técnico</option>
+            <option value="movil">Desarrollo móvil</option>
+          </select>
+        </div>
+        <button class="soft-btn" id="clearFilters" type="button">Limpiar filtros</button>
+      </div>
+
+      <div class="module-grid" id="moduleGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="guide-strip" aria-label="Cómo aprovechar el sitio">
+      <article class="guide-item">
+        <div class="guide-icon" aria-hidden="true">⌁</div>
+        <h3>Aprende con tus palabras</h3>
+        <p>La ficha aporta una guía inicial. Escribe en el resumen qué entendiste, agrega ejemplos de clase y confirma que puedes explicarlo sin leer.</p>
+      </article>
+      <article class="guide-item">
+        <div class="guide-icon" aria-hidden="true">▧</div>
+        <h3>Organiza tus evidencias</h3>
+        <p>Adjunta imágenes desde tu dispositivo y guarda enlaces a tus documentos. Se muestran como apoyo en la ficha de cada módulo.</p>
+      </article>
+      <article class="guide-item">
+        <div class="guide-icon" aria-hidden="true">◉</div>
+        <h3>Comprueba lo aprendido</h3>
+        <p>Responde las <strong>3 preguntas</strong> de cada quiz. Recibirás explicación y podrás intentarlo otra vez.</p>
+      </article>
+    </section>
+
+    <section class="rubric-section" aria-labelledby="rubric-title">
+      <div class="rubric-header">
+        <div>
+          <div class="eyebrow">Control de entrega</div>
+          <h2 id="rubric-title">Checklist de evaluación</h2>
+          <p>Marca cada criterio cuando el equipo pueda demostrar que lo cumple. Esta lista es una autoevaluación, no una nota oficial.</p>
+        </div>
+        <div class="rubric-score" aria-live="polite"><strong id="rubricScore">0</strong><span>/ 10 puntos</span></div>
+      </div>
+      <div class="rubric-grid" id="rubricGrid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div><strong>NEXUS / ACADEMIC LAB</strong><br>Bitácora personal de aprendizaje técnico.</div>
+      <div>HTML · CSS · JavaScript <span aria-hidden="true">|</span> Sin frameworks ni bases de datos externas.</div>
+    </div>
+  </footer>
+
+  <dialog id="moduleDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-head">
+      <div>
+        <div class="eyebrow" id="dialogEyebrow">FICHA DEL MÓDULO</div>
+        <h2 id="dialogTitle">Título del módulo</h2>
+        <div class="teacher-label" id="dialogTeacher"></div>
+      </div>
+      <button class="icon-btn" id="closeDialog" type="button" aria-label="Cerrar ficha">✕</button>
+    </div>
+    <div class="dialog-content" id="dialogContent"></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================
+       NEXUS · CONTENIDO Y FUNCIONES
+
+       PERSONALIZACIÓN RÁPIDA:
+       - En cada objeto del arreglo `modules`, cambia `personalSummary`
+         para escribir tu resumen inicial.
+       - Coloca imágenes en una carpeta, por ejemplo `imagenes/`, y
+         agrega objetos en `images`: { src: "imagenes/mi-foto.jpg", alt: "..." }.
+       - Agrega documentos en `documents`: { title: "Mi informe", url: "https://..." }.
+       - También puedes cargar imágenes y añadir enlaces directamente
+         desde la ficha de cada módulo. Esos cambios se guardan localmente.
+       ========================================================= */
+
+    const modules = [
+      {
+        id: "m32", code: "3.2", teacher: "Javier", area: "soporte", areaLabel: "Soporte técnico", icon: "⌘", accent: "#43e0ec",
+        title: "Mantenimiento y aseguramiento de la operación del sistema informático",
+        description: "Conservar los equipos y servicios informáticos disponibles, seguros y funcionando de forma confiable.",
+        intro: "Este módulo trata de planificar revisiones, detectar fallas, aplicar mantenimiento preventivo y registrar las acciones realizadas. El objetivo no es solamente reparar cuando algo deja de funcionar: también es reducir riesgos y mantener la información protegida.",
+        instruments: ["Multímetro digital: instrumento de diagnóstico eléctrico que debe utilizar personal capacitado y siguiendo normas de seguridad.", "Termómetro infrarrojo: permite observar temperaturas superficiales y reconocer posibles señales de calentamiento."],
+        programs: ["Windows 11 y Windows Update: sistema y servicio para mantener el equipo actualizado.", "Microsoft Defender: herramientas integradas para revisar y proteger el sistema frente a amenazas."],
+        tools: ["Administrador de tareas: permite observar aplicaciones, procesos y consumo de recursos.", "Visor de eventos: registra sucesos del sistema que ayudan a analizar errores e interrupciones."],
+        resources: [
+          { title: "Solución de problemas de actualizaciones de Windows", url: "https://support.microsoft.com/en-us/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows", note: "Microsoft Support · diagnóstico de actualizaciones" },
+          { title: "Solución de problemas de inicio de Windows", url: "https://learn.microsoft.com/es-es/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting", note: "Microsoft Learn · arranque y Visor de eventos" },
+          { title: "Documentación de seguridad de Windows", url: "https://learn.microsoft.com/windows/security", note: "Microsoft Learn · protección del sistema" }
+        ],
+        evidence: "Elabora un informe de mantenimiento preventivo de un equipo. Incluye inventario básico, estado observado, incidencias, recomendaciones, fecha y responsable. Añade capturas o fotografías autorizadas y evita incluir contraseñas o datos privados.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Cuál es la finalidad principal del mantenimiento preventivo?", options: ["Esperar a que el equipo falle", "Reducir la posibilidad de fallas y conservar el funcionamiento", "Eliminar todos los archivos del equipo"], correct: 1, why: "El mantenimiento preventivo busca anticiparse a los problemas mediante revisiones y cuidados planificados." },
+          { q: "¿Qué herramienta de Windows permite consultar registros de sucesos?", options: ["Visor de eventos", "Calculadora", "Bloc de notas"], correct: 0, why: "El Visor de eventos reúne registros del sistema y de las aplicaciones para apoyar el diagnóstico." },
+          { q: "¿Por qué es importante mantener copias de seguridad?", options: ["Para aumentar el brillo", "Para proteger y recuperar información", "Para cambiar el teclado"], correct: 1, why: "Una copia de seguridad ayuda a recuperar datos ante errores, daños o pérdidas." }
+        ]
+      },
+      {
+        id: "m33", code: "3.3", teacher: "Javier", area: "datos", areaLabel: "Bases de datos", icon: "▤", accent: "#8b9cff",
+        title: "Administración de Bases de Datos",
+        description: "Organizar, proteger, respaldar y supervisar bases de datos para que la información sea confiable.",
+        intro: "Administrar una base de datos significa controlar cómo se almacena la información, quién puede consultarla o modificarla, cómo se mantiene su rendimiento y cómo se recupera si ocurre un problema.",
+        instruments: ["Diccionario de datos: describe tablas, campos, tipos de datos, relaciones y restricciones.", "Indicadores de rendimiento: métricas como conexiones, espacio utilizado y duración de consultas."],
+        programs: ["PostgreSQL: sistema gestor de bases de datos relacional.", "MySQL: gestor relacional utilizado en aplicaciones y servicios web."],
+        tools: ["pgAdmin: interfaz gráfica para administrar servidores y bases de datos PostgreSQL.", "DB Browser for SQLite: herramienta visual para explorar y editar archivos de bases de datos SQLite."],
+        resources: [
+          { title: "PostgreSQL: respaldo y recuperación", url: "https://www.postgresql.org/docs/current/backup.html", note: "Documentación oficial de PostgreSQL" },
+          { title: "SQLite Backup API", url: "https://www.sqlite.org/backup.html", note: "Documentación oficial de SQLite" },
+          { title: "Manual de referencia de MySQL 8.4", url: "https://dev.mysql.com/doc/refman/8.4/en/", note: "Documentación oficial de MySQL" }
+        ],
+        evidence: "Presenta un esquema de una base de datos con tablas relacionadas, claves primarias y foráneas. Agrega una breve explicación de usuarios y permisos, una consulta de ejemplo y una propuesta de respaldo periódico.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué función cumple una clave primaria?", options: ["Identifica de forma única cada registro", "Guarda imágenes del sistema", "Cambia el color de una tabla"], correct: 0, why: "La clave primaria identifica de forma única una fila y ayuda a mantener la integridad de los datos." },
+          { q: "¿Para qué sirve una copia de seguridad de una base de datos?", options: ["Para borrar usuarios", "Para recuperar información ante una pérdida o fallo", "Para cambiar el lenguaje de programación"], correct: 1, why: "El respaldo permite restaurar datos cuando la base original se daña o se pierde." },
+          { q: "¿Qué práctica mejora la seguridad de una base de datos?", options: ["Compartir la cuenta administradora", "Dar a todos los usuarios permisos completos", "Asignar permisos según las tareas de cada usuario"], correct: 2, why: "El principio de mínimo privilegio limita el acceso a lo que cada usuario realmente necesita." }
+        ]
+      },
+      {
+        id: "m34", code: "3.4", teacher: "Javier", area: "documentacion", areaLabel: "Documentación", icon: "▧", accent: "#c18cff",
+        title: "Elaboración de documentación de Sistemas informáticos",
+        description: "Registrar cómo funciona un sistema, cómo se instala y cómo se utiliza o mantiene.",
+        intro: "La documentación explica un sistema para que otras personas puedan comprenderlo, utilizarlo, mantenerlo y mejorarlo. Debe ser clara, ordenada, actualizada y adecuada a quien la va a leer.",
+        instruments: ["Diccionario de datos: registra el significado y formato de los datos del sistema.", "Diagramas UML o de flujo: representan procesos, actores, componentes y relaciones."],
+        programs: ["LibreOffice Writer o Microsoft Word: redactar manuales, informes y guías.", "Visual Studio Code: editar archivos Markdown y documentación técnica junto al código."],
+        tools: ["Markdown: formato ligero para crear documentación organizada en texto.", "Mermaid: permite generar diagramas a partir de definiciones escritas."],
+        resources: [
+          { title: "Introducción a Mermaid", url: "https://mermaid.js.org/intro/", note: "Diagramas y visualizaciones mediante texto" },
+          { title: "Acerca de los archivos README", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes", note: "GitHub Docs · documentación de proyectos" },
+          { title: "Primeros pasos con GitHub Pages", url: "https://docs.github.com/en/pages/getting-started-with-github-pages", note: "GitHub Docs · publicación de sitios" }
+        ],
+        evidence: "Crea un pequeño manual técnico de un sistema conocido. Incluye portada, objetivo, requisitos, descripción de funciones, capturas con texto alternativo, instrucciones de uso, solución de problemas y control de versiones.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Cuál es una característica de una buena documentación técnica?", options: ["Usa términos confusos", "Es clara, ordenada y está actualizada", "Oculta los pasos importantes"], correct: 1, why: "La documentación debe permitir que otra persona entienda y utilice el sistema sin depender de explicaciones improvisadas." },
+          { q: "¿Qué información suele incluir un README?", options: ["Qué hace el proyecto y cómo comenzar", "Contraseñas de los usuarios", "Datos privados del equipo"], correct: 0, why: "Un README presenta el proyecto, su utilidad, instrucciones iniciales y formas de colaboración." },
+          { q: "¿Para qué se puede usar Mermaid?", options: ["Reemplazar una base de datos", "Crear diagramas usando texto", "Actualizar el sistema operativo"], correct: 1, why: "Mermaid transforma definiciones textuales en diagramas como flujos y secuencias." }
+        ]
+      },
+      {
+        id: "m38", code: "3.8", teacher: "Javier", area: "software", areaLabel: "Desarrollo de software", icon: "⌬", accent: "#56d6b1",
+        title: "Proyecto innovador de Desarrollo de Software",
+        description: "Diseñar una solución tecnológica útil, probarla y presentarla con una propuesta de valor.",
+        intro: "Un proyecto innovador parte de una necesidad real. El equipo investiga a quién afecta, define el problema, propone una solución, construye un prototipo y lo mejora con pruebas y comentarios de usuarios.",
+        instruments: ["Entrevista o encuesta: ayuda a conocer necesidades y dificultades de los usuarios.", "Prototipo o wireframe: representa la estructura de una solución antes de programarla por completo."],
+        programs: ["Visual Studio Code: editor para desarrollar y organizar el código.", "Figma: programa de diseño colaborativo para construir prototipos de interfaces."],
+        tools: ["Git y GitHub: controlan versiones y facilitan la colaboración del equipo.", "Tablero Kanban: visualiza tareas pendientes, en proceso y terminadas."],
+        resources: [
+          { title: "GitHub Flow", url: "https://docs.github.com/en/get-started/using-github/github-flow", note: "GitHub Docs · trabajo colaborativo con ramas" },
+          { title: "La Guía Scrum", url: "https://scrumguides.org/scrum-guide.html", note: "Guía oficial de Scrum · marco de trabajo" },
+          { title: "OWASP Top 10", url: "https://owasp.org/projects/Top-Ten", note: "Riesgos frecuentes de seguridad en aplicaciones web" }
+        ],
+        evidence: "Presenta una propuesta de proyecto con nombre, problema que resuelve, usuarios, objetivo, boceto de interfaz, funciones principales, planificación de tareas, pruebas realizadas y mejoras futuras.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué debería orientar el inicio de un proyecto innovador?", options: ["Una necesidad o problema de usuarios", "El color del teclado", "La cantidad de páginas del informe"], correct: 0, why: "Una solución tiene sentido cuando responde a una necesidad identificada y ofrece valor a sus usuarios." },
+          { q: "¿Para qué se utiliza Git en un proyecto?", options: ["Para medir la temperatura", "Para registrar cambios en el código", "Para diseñar circuitos eléctricos"], correct: 1, why: "Git registra versiones y permite revisar o recuperar cambios del proyecto." },
+          { q: "¿Por qué se prueba un prototipo con usuarios?", options: ["Para evitar escuchar opiniones", "Para descubrir problemas y mejorar la solución", "Para terminar sin documentar"], correct: 1, why: "La retroalimentación permite validar si la propuesta es comprensible y útil." }
+        ]
+      },
+      {
+        id: "m4", code: "4", teacher: "Arcides", area: "cooperativismo", areaLabel: "Cooperativismo", icon: "◎", accent: "#ffc76a",
+        title: "Puesta en marcha de la empresa en asociatividad cooperativa",
+        description: "Comprender cómo un grupo organiza una empresa cooperativa con participación y objetivos compartidos.",
+        intro: "Una cooperativa es una organización formada por personas que se asocian voluntariamente para atender necesidades comunes. Su funcionamiento se apoya en la participación democrática, la responsabilidad compartida y la colaboración.",
+        instruments: ["Diagnóstico participativo: identifica necesidades, recursos y oportunidades de la comunidad.", "Modelo de negocio cooperativo: organiza a quién se sirve, qué valor se ofrece y cómo se sostendrá la iniciativa."],
+        programs: ["LibreOffice Calc o Microsoft Excel: elaborar presupuestos, proyecciones y registros.", "LibreOffice Writer o Microsoft Word: redactar actas, planes y documentos de organización."],
+        tools: ["Análisis FODA: identifica fortalezas, oportunidades, debilidades y amenazas.", "Presupuesto y flujo de caja: ayudan a planificar ingresos, gastos y disponibilidad de fondos."],
+        resources: [
+          { title: "Guía para planificar y poner en marcha una cooperativa", url: "https://www.ilo.org/publications/step-step-guide-planning-and-starting-cooperative", note: "Organización Internacional del Trabajo (OIT)" },
+          { title: "Identidad, valores y principios cooperativos", url: "https://www.ica.coop/en/cooperatives/cooperative-identity", note: "Alianza Cooperativa Internacional" },
+          { title: "Acerca de las cooperativas", url: "https://static.un.org/en/events/coopsyear/about.shtml", note: "Naciones Unidas · valores y principios" }
+        ],
+        evidence: "Elabora una propuesta de cooperativa: necesidad que atenderá, integrantes y responsabilidades, objetivo común, servicios o productos, reglas de participación, análisis FODA y presupuesto inicial.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué caracteriza a una cooperativa?", options: ["La participación y propiedad compartida de sus miembros", "Que una persona decide todo sin consultar", "Que no tiene objetivos comunes"], correct: 0, why: "Una cooperativa es una asociación voluntaria con propiedad conjunta y control democrático." },
+          { q: "¿Qué significa la letra O en el análisis FODA?", options: ["Organización", "Oportunidades", "Objetivos"], correct: 1, why: "FODA significa fortalezas, oportunidades, debilidades y amenazas." },
+          { q: "¿Para qué sirve un presupuesto inicial?", options: ["Para estimar recursos, ingresos y gastos", "Para elegir los colores del logotipo", "Para eliminar la planificación"], correct: 0, why: "El presupuesto permite calcular recursos y anticipar si la iniciativa puede sostenerse." }
+        ]
+      },
+      {
+        id: "eng3", code: "3", teacher: "Arcides", area: "ingles", areaLabel: "Inglés técnico", icon: "文", accent: "#70b5ff",
+        title: "Conversación de inglés sobre mantenimiento de sistemas informáticos",
+        description: "Practicar vocabulario, preguntas y respuestas para explicar problemas y tareas de soporte en inglés.",
+        intro: "En una conversación de soporte técnico se debe escuchar con atención, describir el problema, hacer preguntas claras y explicar qué se revisará. Conviene aprender vocabulario y practicar expresiones completas en situaciones reales.",
+        instruments: ["Glosario bilingüe: reúne términos técnicos, traducción y un ejemplo de uso.", "Guion de diálogo: organiza los turnos de conversación entre usuario y técnico."],
+        programs: ["British Council LearnEnglish: lecciones y actividades para practicar conversación.", "Cambridge Dictionary: definiciones, pronunciación y ejemplos de vocabulario en inglés."],
+        tools: ["Tarjetas de vocabulario: permiten practicar término, significado y pronunciación.", "Grabadora de voz del dispositivo: sirve para escuchar y revisar la claridad de la práctica oral."],
+        resources: [
+          { title: "Practicar habilidades de conversación", url: "https://learnenglish.britishcouncil.org/free-resources/speaking", note: "British Council · actividades por nivel" },
+          { title: "Speaking B1", url: "https://learnenglish.britishcouncil.org/free-resources/speaking/b1", note: "British Council · conversaciones intermedias" },
+          { title: "Computer · Cambridge Dictionary", url: "https://dictionary.cambridge.org/dictionary/english/computer", note: "Cambridge · significado y pronunciación" }
+        ],
+        evidence: "Graba o presenta en clase una conversación breve entre un usuario y un técnico. Incluye saludo, descripción del problema, preguntas de diagnóstico, explicación de la acción y despedida. Añade el guion y un glosario de al menos diez palabras.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué significa “backup” en informática?", options: ["Copia de seguridad", "Pantalla", "Teclado"], correct: 0, why: "Backup es una copia de seguridad que ayuda a recuperar información." },
+          { q: "¿Cuál es una forma clara de preguntar por un problema?", options: ["What seems to be the problem?", "Where is my blue chair?", "I am a window."], correct: 0, why: "What seems to be the problem? significa “¿Cuál parece ser el problema?”." },
+          { q: "¿Qué significa “The computer is running slowly”?", options: ["La computadora está apagada", "La computadora está funcionando lentamente", "La computadora es nueva"], correct: 1, why: "Running slowly describe un equipo que responde o trabaja con lentitud." }
+        ]
+      },
+      {
+        id: "m2movil", code: "2", teacher: "Arcides", area: "movil", areaLabel: "Desarrollo móvil", icon: "▣", accent: "#57d9c4",
+        title: "Desarrollo de componentes para dispositivos móviles",
+        description: "Crear partes de una aplicación móvil considerando interfaz, interacción y experiencia de usuario.",
+        intro: "Un componente móvil puede ser un botón, formulario, menú, lista, tarjeta o pantalla. Para construirlo se debe pensar en el tamaño de pantalla, la navegación, la accesibilidad y la respuesta ante las acciones del usuario.",
+        instruments: ["Dispositivo Android o emulador: permite observar y probar la aplicación en un entorno móvil.", "Wireframe: boceto que organiza los elementos de una pantalla antes del desarrollo."],
+        programs: ["Android Studio: entorno oficial de desarrollo para aplicaciones Android.", "Flutter: kit de herramientas para crear interfaces y aplicaciones multiplataforma."],
+        tools: ["Android Emulator: permite ejecutar y probar aplicaciones en dispositivos virtuales.", "Kotlin: lenguaje recomendado para el desarrollo Android moderno."],
+        resources: [
+          { title: "Cursos de formación de Android", url: "https://developer.android.com/courses", note: "Android Developers · formación oficial" },
+          { title: "Kotlin para Android", url: "https://kotlinlang.org/docs/android-overview.html", note: "Kotlin Docs · desarrollo Android" },
+          { title: "Documentación de Flutter", url: "https://docs.flutter.dev/", note: "Flutter · guías, ejemplos y referencias" }
+        ],
+        evidence: "Presenta un prototipo móvil con al menos tres componentes (por ejemplo, encabezado, formulario y botón). Incluye capturas de pantalla, explicación de cada componente y una lista de pruebas realizadas en un teléfono o emulador.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué es un componente de una aplicación móvil?", options: ["Una parte de la interfaz o funcionalidad", "Un cable de alimentación", "Un archivo de música obligatorio"], correct: 0, why: "Un componente representa una parte reutilizable o funcional, como un botón o formulario." },
+          { q: "¿Para qué sirve un emulador?", options: ["Para diseñar una cooperativa", "Para probar una aplicación en un dispositivo virtual", "Para reemplazar el código fuente"], correct: 1, why: "El emulador reproduce un entorno de dispositivo para ejecutar y probar la app." },
+          { q: "¿Qué debe considerar una interfaz móvil?", options: ["Solo el color", "El tamaño de pantalla, la navegación y la accesibilidad", "Únicamente el nombre del archivo"], correct: 1, why: "Una buena interfaz se adapta a pantallas y permite que distintas personas la utilicen." }
+        ]
+      },
+      {
+        id: "m31", code: "3.1", teacher: "Arcides", area: "software", areaLabel: "Desarrollo de software", icon: "⌘", accent: "#a78bfa",
+        title: "Desarrollo de aplicaciones de software para la solución de problemas",
+        description: "Analizar una necesidad y transformarla en una aplicación que aporte una solución comprobable.",
+        intro: "El desarrollo de software comienza por comprender el problema y a las personas involucradas. Después se definen requisitos, se diseña una solución, se programa, se prueba y se mejora con base en los resultados.",
+        instruments: ["Lista de requisitos: registra lo que la aplicación debe hacer y las condiciones que debe cumplir.", "Diagrama de flujo: representa los pasos y decisiones de un proceso antes de programarlo."],
+        programs: ["Visual Studio Code: editor de código para distintos lenguajes y tecnologías.", "Visual Studio Community: entorno de desarrollo para crear y depurar aplicaciones."],
+        tools: ["Git y GitHub: permiten llevar historial de cambios y colaborar.", "Casos de prueba: describen entradas, pasos y resultados esperados para revisar funciones."],
+        resources: [
+          { title: "Aprende desarrollo web", url: "https://developer.mozilla.org/es/docs/Learn_web_development", note: "MDN en español · HTML, CSS y JavaScript" },
+          { title: "GitHub Flow", url: "https://docs.github.com/en/get-started/using-github/github-flow", note: "GitHub Docs · colaboración y cambios" },
+          { title: "OWASP Top 10", url: "https://owasp.org/projects/Top-Ten", note: "OWASP · riesgos de seguridad de aplicaciones" }
+        ],
+        evidence: "Documenta una pequeña aplicación que resuelva un problema concreto. Explica el problema, usuarios, requisitos funcionales, diagrama de flujo, interfaz, pruebas y resultado. Adjunta capturas y el enlace al repositorio si está publicado.",
+        personalSummary: "", images: [], documents: [],
+        quiz: [
+          { q: "¿Qué se debe hacer antes de comenzar a programar una solución?", options: ["Comprender el problema y definir requisitos", "Publicar sin probar", "Elegir primero una animación"], correct: 0, why: "Entender el problema permite definir qué debe resolver la aplicación y para quién." },
+          { q: "¿Qué es un requisito funcional?", options: ["Una característica que describe una función que el sistema debe realizar", "El color favorito del desarrollador", "La marca del monitor"], correct: 0, why: "Un requisito funcional describe un servicio o comportamiento que el sistema debe ofrecer." },
+          { q: "¿Qué comprueba un caso de prueba?", options: ["Que el código tenga muchos comentarios", "Que una función produzca el resultado esperado", "Que el equipo tenga internet siempre"], correct: 1, why: "Un caso de prueba compara el resultado real con el resultado esperado para una situación definida." }
+        ]
+      }
+    ];
+
+    const rubricCriteria = [
+      { id: "content", title: "Contenido por módulo", points: 3, detail: "Cada ficha tiene 2 instrumentos, 2 programas, 2 herramientas, 3 recursos con enlace, una evidencia y quiz de 3 preguntas. Los resúmenes son propios." },
+      { id: "interaction", title: "Interactividad y dinamismo", points: 2, detail: "Buscador y filtros, progreso guardado, quiz con retroalimentación y modo claro/oscuro funcionan sin errores." },
+      { id: "design", title: "Diseño creativo, intuitivo y accesible", points: 2, detail: "Identidad visual, navegación clara, adaptación a celular, contraste y texto alternativo en imágenes." },
+      { id: "github", title: "GitHub y publicación", points: 2, detail: "README claro, commits frecuentes de todos, versión etiquetada, GitHub Pages publicado y sin claves ni datos personales." },
+      { id: "domain", title: "Dominio individual", points: 1, detail: "Cada integrante explica sus módulos, el código que realizó y responde una pregunta de repaso." }
+    ];
+
+    const STORAGE_KEY = "nexus-bitacora-v1";
+    const MAX_IMAGE_BYTES = 450000; // 450 KB por imagen para evitar llenar el almacenamiento del navegador.
+    const MAX_IMAGES_PER_MODULE = 4;
+    const state = loadState();
+    let activeModuleId = null;
+    let toastTimer = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const saved = raw ? JSON.parse(raw) : {};
+        return {
+          theme: saved.theme === "light" ? "light" : "dark",
+          completed: Array.isArray(saved.completed) ? saved.completed : [],
+          scores: saved.scores && typeof saved.scores === "object" ? saved.scores : {},
+          drafts: saved.drafts && typeof saved.drafts === "object" ? saved.drafts : {},
+          uploads: saved.uploads && typeof saved.uploads === "object" ? saved.uploads : {},
+          rubric: saved.rubric && typeof saved.rubric === "object" ? saved.rubric : {}
+        };
+      } catch (error) {
+        console.warn("No se pudieron recuperar los datos guardados:", error);
+        return { theme: "dark", completed: [], scores: {}, drafts: {}, uploads: {}, rubric: {} };
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        return true;
+      } catch (error) {
+        console.error("No se pudo guardar en el almacenamiento local:", error);
+        showToast("No hay espacio suficiente para guardar. Prueba con imágenes más pequeñas.");
+        return false;
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    }
+
+    function safeHttpUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+      } catch { return null; }
+    }
+
+    function uploadData(moduleId) {
+      if (!state.uploads[moduleId]) state.uploads[moduleId] = { images: [], docs: [] };
+      if (!Array.isArray(state.uploads[moduleId].images)) state.uploads[moduleId].images = [];
+      if (!Array.isArray(state.uploads[moduleId].docs)) state.uploads[moduleId].docs = [];
+      return state.uploads[moduleId];
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function renderTheme() {
+      document.documentElement.dataset.theme = state.theme;
+      const button = document.getElementById("themeToggle");
+      button.textContent = state.theme === "dark" ? "☼" : "☾";
+      button.setAttribute("aria-label", state.theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+      button.title = state.theme === "dark" ? "Activar modo claro" : "Activar modo oscuro";
+    }
+
+    function updateProgress() {
+      const total = modules.length;
+      const done = state.completed.filter(id => modules.some(module => module.id === id)).length;
+      const percent = Math.round((done / total) * 100);
+      const quizzes = Object.keys(state.scores).filter(id => modules.some(module => module.id === id)).length;
+      document.getElementById("progressPercent").textContent = percent + "%";
+      document.getElementById("progressFill").style.width = percent + "%";
+      document.getElementById("progressBar").setAttribute("aria-valuenow", String(percent));
+      document.getElementById("completedCount").textContent = `${done} de ${total} módulos listos`;
+      document.getElementById("quizCount").textContent = `${quizzes} quizzes realizados`;
+    }
+
+    function renderCards() {
+      const query = document.getElementById("searchInput").value.trim().toLocaleLowerCase("es");
+      const teacher = document.getElementById("teacherFilter").value;
+      const area = document.getElementById("areaFilter").value;
+      const filtered = modules.filter(module => {
+        const haystack = [module.code, module.title, module.description, module.intro, module.areaLabel, module.teacher, ...module.instruments, ...module.programs, ...module.tools].join(" ").toLocaleLowerCase("es");
+        return (!query || haystack.includes(query)) && (teacher === "all" || module.teacher === teacher) && (area === "all" || module.area === area);
+      });
+      const grid = document.getElementById("moduleGrid");
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty-state"><strong>No encontramos módulos.</strong><br>Prueba con otra palabra o limpia los filtros.</div>';
+        return;
+      }
+      grid.innerHTML = filtered.map(module => {
+        const done = state.completed.includes(module.id);
+        return `
+          <article class="module-card" style="--card-accent:${module.accent}">
+            <div class="card-top"><span class="module-code">MÓDULO ${escapeHTML(module.code)}</span><span class="module-symbol" aria-hidden="true">${module.icon}</span></div>
+            <div class="teacher-label">PROFE ${escapeHTML(module.teacher.toUpperCase())} · ${escapeHTML(module.areaLabel.toUpperCase())}</div>
+            <h3>${escapeHTML(module.title)}</h3>
+            <p class="description">${escapeHTML(module.description)}</p>
+            <div class="tag-row"><span class="tag">2 instrumentos</span><span class="tag">2 programas</span><span class="tag">2 herramientas</span><span class="tag">3 recursos</span></div>
+            <div class="card-footer"><span class="card-stats">Evidencia + quiz de 3 preguntas</span><span class="completed-mark">${done ? "✓ COMPLETADO" : "EN PROGRESO"}</span></div>
+            <button class="primary-btn" type="button" data-open-module="${module.id}" style="margin-top:14px; width:100%">Abrir ficha <span aria-hidden="true">↗</span></button>
+          </article>`;
+      }).join("");
+    }
+
+    function renderRubric() {
+      const grid = document.getElementById("rubricGrid");
+      grid.innerHTML = rubricCriteria.map(item => `
+        <label class="rubric-card">
+          <input type="checkbox" data-rubric="${item.id}" ${state.rubric[item.id] ? "checked" : ""}>
+          <span class="rubric-copy"><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.detail)}</p></span>
+          <span class="rubric-points">${item.points} ${item.points === 1 ? "pto." : "ptos."}</span>
+        </label>`).join("");
+      updateRubricScore();
+    }
+
+    function updateRubricScore() {
+      const score = rubricCriteria.reduce((sum, item) => sum + (state.rubric[item.id] ? item.points : 0), 0);
+      document.getElementById("rubricScore").textContent = String(score);
+    }
+
+    function makeList(items) { return `<ul>${items.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`; }
+
+    function renderImages(module) {
+      const stored = uploadData(module.id).images;
+      const configured = Array.isArray(module.images) ? module.images : [];
+      const allImages = [...configured, ...stored];
+      if (!allImages.length) return '<p class="editor-help">Todavía no has agregado imágenes a esta ficha.</p>';
+      return `<div class="image-preview-grid">${allImages.map((img, index) => `<div class="preview-tile"><img src="${escapeHTML(img.src)}" alt="${escapeHTML(img.alt || `Imagen ${index + 1} del módulo`)}"><span>${escapeHTML(img.name || img.alt || `Imagen ${index + 1}`)}</span></div>`).join("")}</div>`;
+    }
+
+    function renderUserDocs(module) {
+      const docs = [...(Array.isArray(module.documents) ? module.documents : []), ...uploadData(module.id).docs];
+      if (!docs.length) return '<p class="editor-help">Aún no hay documentos personales agregados.</p>';
+      return `<div class="user-docs">${docs.map((doc, index) => {
+        const valid = safeHttpUrl(doc.url);
+        const removable = index >= (module.documents || []).length;
+        return `<div class="user-doc"><span>${valid ? `<a href="${escapeHTML(valid)}" target="_blank" rel="noopener noreferrer">${escapeHTML(doc.title || "Abrir documento")}</a>` : escapeHTML(doc.title || "Enlace no válido")}</span>${removable ? `<button class="remove-btn" type="button" data-remove-doc="${index - (module.documents || []).length}" aria-label="Eliminar ${escapeHTML(doc.title || "documento")}">Quitar</button>` : ""}</div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderQuiz(module) {
+      return module.quiz.map((question, index) => `
+        <fieldset class="question">
+          <legend>${index + 1}. ${escapeHTML(question.q)}</legend>
+          <div class="answers">${question.options.map((option, optionIndex) => `
+            <label class="answer"><input type="radio" name="quiz-${module.id}-${index}" value="${optionIndex}"><span>${escapeHTML(option)}</span></label>`).join("")}
+          </div>
+        </fieldset>`).join("");
+    }
+
+    function renderDetail(moduleId) {
+      const module = modules.find(item => item.id === moduleId);
+      if (!module) return;
+      activeModuleId = moduleId;
+      const dialog = document.getElementById("moduleDialog");
+      const draft = state.drafts[moduleId] || {};
+      const lastScore = state.scores[moduleId];
+      document.getElementById("dialogEyebrow").textContent = `FICHA TÉCNICA · MÓDULO ${module.code}`;
+      document.getElementById("dialogTitle").textContent = module.title;
+      document.getElementById("dialogTeacher").textContent = `Profe ${module.teacher} · ${module.areaLabel}`;
+      document.getElementById("dialogContent").innerHTML = `
+        <p class="dialog-intro">${escapeHTML(module.intro)}</p>
+        <div class="detail-grid">
+          <section class="detail-panel"><h3><span aria-hidden="true">⌖</span> Instrumentos</h3>${makeList(module.instruments)}</section>
+          <section class="detail-panel"><h3><span aria-hidden="true">▣</span> Programas</h3>${makeList(module.programs)}</section>
+          <section class="detail-panel"><h3><span aria-hidden="true">⌘</span> Herramientas</h3>${makeList(module.tools)}</section>
+          <section class="detail-panel"><h3><span aria-hidden="true">↗</span> Recursos de consulta</h3>
+            <div class="resource-list">${module.resources.map(resource => `<a class="resource-link" href="${escapeHTML(resource.url)}" target="_blank" rel="noopener noreferrer"><span>${escapeHTML(resource.title)}<small>${escapeHTML(resource.note)}</small></span><span aria-hidden="true">↗</span></a>`).join("")}</div>
+          </section>
+        </div>
+        <section class="evidence-box"><h3>▣ Evidencia sugerida</h3><p>${escapeHTML(module.evidence)}</p></section>
+
+        <section class="editor-section" aria-labelledby="personal-work-title">
+          <div class="editor-title"><h3 id="personal-work-title">✎ Mi trabajo y mis evidencias</h3><small>Guardado automático en este navegador</small></div>
+          <label class="field-label" for="personalSummary">Mi resumen del módulo</label>
+          <textarea class="control" id="personalSummary" placeholder="Escribe con tus propias palabras: ¿qué aprendiste?, ¿para qué sirve?, ¿cómo lo explicarías con un ejemplo?">${escapeHTML(draft.summary ?? module.personalSummary ?? "")}</textarea>
+          <p class="editor-help">Escribe tu propia explicación y añade ejemplos de clase. Evita copiar el texto de los recursos.</p>
+          <label class="field-label" for="evidenceNotes">Descripción de mi evidencia</label>
+          <textarea class="control" id="evidenceNotes" placeholder="Describe qué evidencia realizaste, qué demuestra y qué falta por mejorar...">${escapeHTML(draft.evidence ?? "")}</textarea>
+          <label class="field-label" for="imageUpload">Agregar imágenes a esta ficha</label>
+          <div class="upload-row"><input id="imageUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple aria-describedby="imageHelp"><span class="pill" id="imageLimit">Máx. ${MAX_IMAGES_PER_MODULE} imágenes guardadas</span></div>
+          <p id="imageHelp" class="editor-help">Formatos JPG, PNG o WebP. Para que el navegador pueda guardarlas, cada imagen debe pesar menos de 450 KB. Para GitHub Pages es mejor incluir archivos optimizados en una carpeta y agregarlos al arreglo <code>images</code> del código.</p>
+          <div id="imagePreviewArea">${renderImages(module)}</div>
+          <label class="field-label">Agregar enlace a un documento</label>
+          <div class="doc-form">
+            <input class="control" id="docTitle" type="text" placeholder="Nombre del documento" aria-label="Nombre del documento">
+            <input class="control" id="docUrl" type="url" placeholder="https://..." aria-label="Enlace del documento">
+            <button class="soft-btn" id="addDocBtn" type="button">Añadir enlace</button>
+          </div>
+          <div id="userDocsArea">${renderUserDocs(module)}</div>
+        </section>
+
+        <section class="quiz-section" aria-labelledby="quiz-title">
+          <h3 id="quiz-title">◎ Quiz de repaso</h3>
+          <p>Responde las tres preguntas. Al enviar, verás tu resultado y la explicación de cada respuesta.</p>
+          <form id="quizForm">${renderQuiz(module)}
+            <div class="quiz-actions"><button class="primary-btn" type="submit">Comprobar respuestas</button>${lastScore ? `<span class="pill">Último intento: ${lastScore.score}/3</span>` : ""}</div>
+          </form>
+          <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+        </section>
+        <div class="dialog-footer">
+          <span class="save-note">${state.completed.includes(module.id) ? "✓ Este módulo está marcado como completado." : "Marca el módulo como completado cuando puedas explicarlo."}</span>
+          <button class="primary-btn" id="toggleComplete" type="button">${state.completed.includes(module.id) ? "Desmarcar como listo" : "Marcar como completado ✓"}</button>
+        </div>`;
+
+      bindDetailEvents(module);
+      if (!dialog.open) dialog.showModal();
+    }
+
+    function bindDetailEvents(module) {
+      const summary = document.getElementById("personalSummary");
+      const evidence = document.getElementById("evidenceNotes");
+      const persistDraft = () => {
+        if (!state.drafts[module.id]) state.drafts[module.id] = {};
+        state.drafts[module.id].summary = summary.value;
+        state.drafts[module.id].evidence = evidence.value;
+        saveState();
+      };
+      summary.addEventListener("input", persistDraft);
+      evidence.addEventListener("input", persistDraft);
+
+      document.getElementById("imageUpload").addEventListener("change", async event => {
+        const files = Array.from(event.target.files || []);
+        if (!files.length) return;
+        const uploads = uploadData(module.id);
+        const remaining = MAX_IMAGES_PER_MODULE - uploads.images.length;
+        if (remaining <= 0) { showToast(`Ya tienes ${MAX_IMAGES_PER_MODULE} imágenes guardadas en esta ficha.`); event.target.value = ""; return; }
+        const selected = files.slice(0, remaining);
+        for (const file of selected) {
+          if (!file.type.startsWith("image/")) continue;
+          if (file.size > MAX_IMAGE_BYTES) { showToast(`${file.name} supera 450 KB. Optimiza la imagen y vuelve a intentarlo.`); continue; }
+          try {
+            const dataUrl = await readFileAsDataURL(file);
+            uploads.images.push({ src: dataUrl, alt: `Imagen agregada: ${file.name}`, name: file.name });
+          } catch { showToast(`No se pudo leer ${file.name}.`); }
+        }
+        if (saveState()) {
+          document.getElementById("imagePreviewArea").innerHTML = renderImages(module);
+          showToast("Imagen agregada a la ficha.");
+        }
+        event.target.value = "";
+      });
+
+      document.getElementById("addDocBtn").addEventListener("click", () => {
+        const titleInput = document.getElementById("docTitle");
+        const urlInput = document.getElementById("docUrl");
+        const title = titleInput.value.trim();
+        const url = safeHttpUrl(urlInput.value.trim());
+        if (!title || !url) { showToast("Escribe un nombre y una dirección web válida (http o https). "); return; }
+        uploadData(module.id).docs.push({ title, url });
+        if (saveState()) {
+          document.getElementById("userDocsArea").innerHTML = renderUserDocs(module);
+          titleInput.value = ""; urlInput.value = "";
+          showToast("Enlace agregado correctamente.");
+          bindRemoveDocEvents(module);
+        }
+      });
+      bindRemoveDocEvents(module);
+
+      document.getElementById("quizForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const answers = module.quiz.map((question, index) => form.querySelector(`input[name="quiz-${module.id}-${index}"]:checked`));
+        if (answers.some(answer => !answer)) { showToast("Responde las tres preguntas antes de comprobar."); return; }
+        const score = answers.reduce((total, answer, index) => total + (Number(answer.value) === module.quiz[index].correct ? 1 : 0), 0);
+        state.scores[module.id] = { score, total: 3, date: new Date().toISOString() };
+        saveState();
+        const feedback = document.getElementById("quizFeedback");
+        feedback.innerHTML = `<strong>Resultado: ${score} de 3 respuestas correctas.</strong>${module.quiz.map((question, index) => {
+          const isCorrect = Number(answers[index].value) === question.correct;
+          return `<p class="feedback-line">${isCorrect ? "✓ Correcta" : "✕ Revisa esta respuesta"}. ${escapeHTML(question.why)}</p>`;
+        }).join("")}`;
+        feedback.classList.add("show");
+        updateProgress();
+        showToast("Tu resultado quedó guardado en este dispositivo.");
+      });
+
+      document.getElementById("toggleComplete").addEventListener("click", () => {
+        const index = state.completed.indexOf(module.id);
+        if (index >= 0) state.completed.splice(index, 1); else state.completed.push(module.id);
+        saveState();
+        updateProgress();
+        renderCards();
+        renderDetail(module.id);
+        showToast(index >= 0 ? "Módulo retirado de completados." : "¡Módulo marcado como completado!");
+      });
+    }
+
+    function bindRemoveDocEvents(module) {
+      document.querySelectorAll("[data-remove-doc]").forEach(button => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.removeDoc);
+          const docs = uploadData(module.id).docs;
+          if (Number.isInteger(index) && index >= 0 && index < docs.length) {
+            docs.splice(index, 1);
+            saveState();
+            document.getElementById("userDocsArea").innerHTML = renderUserDocs(module);
+            bindRemoveDocEvents(module);
+            showToast("Enlace eliminado de la ficha.");
+          }
+        });
+      });
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error("No se pudo leer el archivo"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Eventos generales
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      saveState(); renderTheme();
+    });
+    ["searchInput", "teacherFilter", "areaFilter"].forEach(id => document.getElementById(id).addEventListener(id === "searchInput" ? "input" : "change", renderCards));
+    document.getElementById("clearFilters").addEventListener("click", () => {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("teacherFilter").value = "all";
+      document.getElementById("areaFilter").value = "all";
+      renderCards();
+      document.getElementById("searchInput").focus();
+    });
+    document.getElementById("rubricGrid").addEventListener("change", event => {
+      const checkbox = event.target.closest("[data-rubric]");
+      if (!checkbox) return;
+      state.rubric[checkbox.dataset.rubric] = checkbox.checked;
+      saveState();
+      updateRubricScore();
+    });
+    document.getElementById("moduleGrid").addEventListener("click", event => {
+      const button = event.target.closest("[data-open-module]");
+      if (button) renderDetail(button.dataset.openModule);
+    });
+    document.getElementById("closeDialog").addEventListener("click", () => document.getElementById("moduleDialog").close());
+    document.getElementById("moduleDialog").addEventListener("click", event => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
+    });
+
+    // Inicio
+    renderTheme();
+    renderCards();
+    updateProgress();
+    renderRubric();
+  </script>
+</body>
+</html>

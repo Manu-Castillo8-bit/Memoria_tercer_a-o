@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>NEXUS | Admin</title>
+<style>
+  :root{--bg:#07111f;--s1:#0e1f33;--s2:#10243a;--s3:#142b43;--text:#e8f3ff;--muted:#9bb0c6;--line:rgba(144,190,224,.18);--cyan:#43e0ec;--green:#50d6a2;--danger:#ff7b89;--amber:#ffc76a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,"Segoe UI",sans-serif}
+  a{color:var(--cyan)}
+  button,input,select,textarea{font:inherit;color:var(--text)}
+  input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--s2)}
+  textarea{min-height:86px;resize:vertical}
+  input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+  label{display:block;margin:12px 0 5px;color:var(--muted);font-size:.8rem;font-weight:700}
+  .btn{padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:var(--s3);cursor:pointer}
+  .btn:hover{border-color:var(--cyan)}
+  .btn.primary{background:linear-gradient(100deg,var(--cyan),#75b8ff);color:#061722;font-weight:800;border-color:transparent}
+  .btn.danger{color:var(--danger)}
+  .btn.sm{padding:5px 9px;font-size:.78rem}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+  header strong{letter-spacing:.14em}
+  .wrap{display:grid;grid-template-columns:280px 1fr;gap:18px;padding:18px 20px;max-width:1300px;margin:0 auto}
+  .side{display:grid;gap:8px;align-content:start}
+  .item{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--s1);cursor:pointer;text-align:left;width:100%}
+  .item.active{border-color:var(--cyan);background:var(--s3)}
+  .item small{display:block;color:var(--muted)}
+  .card{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--s1);margin-bottom:14px}
+  .card h3{margin:0 0 4px;font-size:1rem;color:var(--cyan)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .row{display:grid;gap:7px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--s2);margin-top:9px}
+  .row .grid3{gap:7px}
+  .help{color:var(--muted);font-size:.75rem;margin:4px 0 0}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+  .thumb{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--s2);display:grid;gap:6px}
+  .thumb img{width:100%;height:100px;object-fit:cover;border-radius:8px}
+  #msg{position:fixed;right:18px;bottom:18px;padding:11px 15px;border-radius:12px;background:var(--s3);border:1px solid var(--cyan);display:none;max-width:340px;z-index:20}
+  #login{max-width:380px;margin:12vh auto;padding:0 18px}
+  .bar{position:sticky;bottom:0;display:flex;gap:10px;flex-wrap:wrap;padding:12px 0;background:linear-gradient(transparent,var(--bg) 35%)}
+  .hidden{display:none!important}
+  @media(max-width:850px){.wrap{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="noConfig" class="card hidden" style="max-width:560px;margin:10vh auto">
+  <h3>Falta configurar Supabase</h3>
+  <p>Abre <code>config.js</code> y pega tu <b>Project URL</b> y tu clave <b>anon public</b>. Luego recarga esta página.</p>
+</div>
+
+<!-- LOGIN -->
+<section id="login" class="hidden">
+  <div class="card">
+    <h3>NEXUS · Admin</h3>
+    <p class="help">Inicia sesión con el usuario que creaste en Supabase (Authentication → Users).</p>
+    <form id="loginForm">
+      <label for="email">Correo</label><input id="email" type="email" required autocomplete="username">
+      <label for="pass">Contraseña</label><input id="pass" type="password" required autocomplete="current-password">
+      <p style="margin-top:14px"><button class="btn primary" type="submit">Entrar</button> <a href="index.html" class="btn">Volver al sitio</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header>
+    <strong>NEXUS · ADMIN</strong>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn" href="index.html" target="_blank" rel="noopener">Ver sitio ↗</a>
+      <button class="btn" id="logoutBtn" type="button">Salir</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <aside class="side">
+      <button class="btn primary" id="newBtn" type="button">+ Nuevo módulo</button>
+      <div id="list" class="side"></div>
+    </aside>
+    <main id="editor"><div class="card"><p>Elige un módulo de la izquierda o crea uno nuevo.</p></div></main>
+  </div>
+</div>
+<div id="msg" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const C = window.NEXUS_CONFIG || {};
+const BUCKET = "evidencias";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lines = v => v.split("\n").map(s => s.trim()).filter(Boolean);
+const safeUrl = v => { try { const u = new URL(v); return /^https?:$/.test(u.protocol) ? u.href : ""; } catch { return ""; } };
+let sb, mods = [], cur = null, curOrden = 0, isNew = false;
+
+function toast(t){ const m=$("#msg"); m.textContent=t; m.style.display="block"; clearTimeout(toast.t); toast.t=setTimeout(()=>m.style.display="none",3200); }
+
+/* ---------- Arranque ---------- */
+(async function init(){
+  if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) { $("#noConfig").classList.remove("hidden"); return; }
+  sb = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  const { data } = await sb.auth.getSession();
+  data.session ? showApp() : $("#login").classList.remove("hidden");
+})();
+
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#pass").value });
+  if (error) return toast("No se pudo entrar: " + error.message);
+  $("#login").classList.add("hidden"); showApp();
+});
+$("#logoutBtn").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
+
+async function showApp(){ $("#app").classList.remove("hidden"); await loadAll(); }
+
+async function loadAll(){
+  const { data, error } = await sb.from("modulos").select("id,orden,data").order("orden",{ascending:true});
+  if (error) return toast("Error al cargar: " + error.message);
+  mods = data.map(r => ({ ...r.data, id: r.id, _orden: r.orden }));
+  renderList();
+}
+
+function renderList(){
+  $("#list").innerHTML = mods.length ? mods.map(m =>
+    `<button class="item ${cur && cur.id===m.id && !isNew ? "active":""}" data-id="${esc(m.id)}"><b>${esc(m.code||"")} · ${esc(m.title||"Sin título")}</b><small>${esc(m.teacher||"")} · ${esc(m.areaLabel||"")}</small></button>`).join("")
+    : '<p class="help">No hay módulos en Supabase. Crea uno nuevo con el botón "+ Nuevo módulo".</p>';
+}
+$("#list").addEventListener("click", e => {
+  const b = e.target.closest("[data-id]"); if (!b) return;
+  const m = mods.find(x => x.id === b.dataset.id);
+  cur = JSON.parse(JSON.stringify(m)); curOrden = m._orden || 0; isNew = false; renderList(); renderEditor();
+});
+$("#newBtn").addEventListener("click", () => {
+  cur = { id:"", code:"", teacher:"", area:"", areaLabel:"", icon:"◎", accent:"#43e0ec", title:"", description:"", intro:"", summary:"", learned:[], instruments:[], programs:[], tools:[], resources:[], evidence:"", images:[], documents:[], quiz:[] };
+  curOrden = (mods.reduce((a,m)=>Math.max(a,m._orden||0),0)) + 1; isNew = true; renderList(); renderEditor();
+});
+
+/* ---------- Editor ---------- */
+const rowRes = (r={}) => `<div class="row" data-res><div class="grid3"><input placeholder="Título" value="${esc(r.title)}" data-k="title"><input placeholder="https://..." value="${esc(r.url)}" data-k="url"><input placeholder="Nota (fuente)" value="${esc(r.note)}" data-k="note"></div><button type="button" class="btn sm danger" data-del>Quitar</button></div>`;
+const rowDoc = (d={}) => `<div class="row" data-doc><div class="grid2"><input placeholder="Título" value="${esc(d.title)}" data-k="title"><input placeholder="https://..." value="${esc(d.url)}" data-k="url"></div><button type="button" class="btn sm danger" data-del>Quitar</button></div>`;
+const rowImg = (i={}) => `<div class="thumb" data-img data-src="${esc(i.src)}"><img src="${esc(i.src)}" alt=""><input placeholder="Texto alternativo (describe la imagen)" value="${esc(i.alt)}" data-k="alt"><button type="button" class="btn sm danger" data-del>Quitar</button></div>`;
+const rowQuiz = (q={}) => `<div class="row" data-quiz><input placeholder="Pregunta" value="${esc(q.q)}" data-k="q"><textarea placeholder="Una opción por línea" data-k="options">${esc((q.options||[]).join("\n"))}</textarea><div class="grid2"><div><label>Número de la opción correcta (1, 2, 3…)</label><input type="number" min="1" value="${(q.correct ?? 0)+1}" data-k="correct"></div><div><label>Explicación</label><input value="${esc(q.why)}" data-k="why"></div></div><button type="button" class="btn sm danger" data-del>Quitar pregunta</button></div>`;
+
+function renderEditor(){
+  const m = cur;
+  $("#editor").innerHTML = `
+  <form id="form">
+    <div class="card"><h3>Datos generales</h3>
+      <div class="grid3">
+        <div><label>ID único (sin espacios)</label><input id="f_id" value="${esc(m.id)}" ${isNew?"":"readonly"} required pattern="[A-Za-z0-9_\\-]+" placeholder="m5"></div>
+        <div><label>Código visible</label><input id="f_code" value="${esc(m.code)}" placeholder="3.5"></div>
+        <div><label>Orden en la lista</label><input id="f_orden" type="number" value="${curOrden}"></div>
+      </div>
+      <div class="grid3">
+        <div><label>Docente</label><input id="f_teacher" value="${esc(m.teacher)}"></div>
+        <div><label>Clave del área (ej. software)</label><input id="f_area" value="${esc(m.area)}"></div>
+        <div><label>Nombre visible del área</label><input id="f_areaLabel" value="${esc(m.areaLabel)}"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Ícono (símbolo o emoji)</label><input id="f_icon" value="${esc(m.icon)}"></div>
+        <div><label>Color de la tarjeta</label><input id="f_accent" type="color" value="${esc(m.accent||"#43e0ec")}" style="height:42px;padding:3px"></div>
+      </div>
+      <label>Título</label><input id="f_title" value="${esc(m.title)}" required>
+      <label>Descripción corta (para la tarjeta)</label><input id="f_description" value="${esc(m.description)}">
+      <label>Introducción</label><textarea id="f_intro">${esc(m.intro)}</textarea>
+    </div>
+
+    <div class="card"><h3>1 · Resumen y lo que aprendí</h3>
+      <label>Resumen con tus palabras (2–3 líneas)</label><textarea id="f_summary">${esc(m.summary)}</textarea>
+      <label>3 cosas que aprendí (una por línea)</label><textarea id="f_learned">${esc((m.learned||[]).join("\n"))}</textarea>
+    </div>
+
+    <div class="card"><h3>2 · Instrumentos · Programas · Herramientas</h3>
+      <p class="help">Una por línea. Mínimo 2 en cada una.</p>
+      <label>Instrumentos</label><textarea id="f_instruments">${esc((m.instruments||[]).join("\n"))}</textarea>
+      <label>Programas</label><textarea id="f_programs">${esc((m.programs||[]).join("\n"))}</textarea>
+      <label>Herramientas</label><textarea id="f_tools">${esc((m.tools||[]).join("\n"))}</textarea>
+    </div>
+
+    <div class="card"><h3>3 · Recursos (mínimo 3)</h3>
+      <div id="resList">${(m.resources||[]).map(rowRes).join("")}</div>
+      <p><button type="button" class="btn sm" id="addRes">+ Añadir recurso</button></p>
+    </div>
+
+    <div class="card"><h3>4 · Evidencias</h3>
+      <label>¿Qué se pide como evidencia?</label><textarea id="f_evidence">${esc(m.evidence)}</textarea>
+      <label>Subir imágenes (se optimizan y se guardan en Supabase Storage)</label>
+      <input id="f_upload" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+      <p class="help">Tip: escribe el texto alternativo debajo de cada imagen (accesibilidad).</p>
+      <div class="thumbs" id="imgList">${(m.images||[]).map(rowImg).join("")}</div>
+      <label>Documentos (enlaces)</label>
+      <div id="docList">${(m.documents||[]).map(rowDoc).join("")}</div>
+      <p><button type="button" class="btn sm" id="addDoc">+ Añadir documento</button></p>
+    </div>
+
+    <div class="card"><h3>5 · Quiz (mínimo 3 preguntas)</h3>
+      <div id="quizList">${(m.quiz||[]).map(rowQuiz).join("")}</div>
+      <p><button type="button" class="btn sm" id="addQuiz">+ Añadir pregunta</button></p>
+    </div>
+
+    <div class="bar">
+      <button class="btn primary" type="submit">Guardar cambios</button>
+      ${isNew?"":'<button class="btn danger" type="button" id="delMod">Eliminar módulo</button>'}
+    </div>
+  </form>`;
+  bindEditor();
+}
+
+function bindEditor(){
+  $("#addRes").onclick = () => $("#resList").insertAdjacentHTML("beforeend", rowRes());
+  $("#addDoc").onclick = () => $("#docList").insertAdjacentHTML("beforeend", rowDoc());
+  $("#addQuiz").onclick = () => $("#quizList").insertAdjacentHTML("beforeend", rowQuiz({options:["",""],correct:0}));
+  $("#editor").addEventListener("click", e => { const d = e.target.closest("[data-del]"); if (d) d.parentElement.remove(); });
+  $("#f_upload").addEventListener("change", uploadImages);
+  $("#form").addEventListener("submit", save);
+  $("#delMod")?.addEventListener("click", removeModule);
+}
+
+/* ---------- Imágenes: reducir y subir a Storage ---------- */
+function shrink(file, max=1600){
+  return new Promise((ok, fail) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(img.width*k); cv.height = Math.round(img.height*k);
+      cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+      cv.toBlob(b => { URL.revokeObjectURL(url); b ? ok(b) : fail(new Error("No se pudo convertir")); }, "image/webp", .85);
+    };
+    img.onerror = () => fail(new Error("Imagen no válida"));
+    img.src = url;
+  });
+}
+async function uploadImages(e){
+  const id = $("#f_id").value.trim();
+  if (!id) { toast("Primero escribe el ID del módulo."); e.target.value=""; return; }
+  for (const file of e.target.files) {
+    try {
+      const blob = await shrink(file);
+      const name = file.name.replace(/\.[^.]+$/,"").replace(/[^a-zA-Z0-9_-]/g,"-").slice(0,40) || "imagen";
+      const path = `${id}/${Date.now()}-${name}.webp`;
+      const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType:"image/webp", upsert:false });
+      if (error) throw error;
+      const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
+      $("#imgList").insertAdjacentHTML("beforeend", rowImg({ src:data.publicUrl, alt:"" }));
+      toast("Imagen subida. Recuerda guardar el módulo.");
+    } catch (err) { toast("Error al subir " + file.name + ": " + err.message); }
+  }
+  e.target.value = "";
+}
+
+/* ---------- Guardar / eliminar ---------- */
+function collect(){
+  const val = id => $("#"+id).value.trim();
+  const rows = (sel, fn) => $$(sel).map(fn);
+  const get = (r,k) => r.querySelector(`[data-k="${k}"]`).value.trim();
+  return {
+    id: val("f_id"), code: val("f_code"), teacher: val("f_teacher"), area: val("f_area"), areaLabel: val("f_areaLabel"),
+    icon: val("f_icon") || "◎", accent: $("#f_accent").value, title: val("f_title"), description: val("f_description"),
+    intro: val("f_intro"), summary: val("f_summary"), learned: lines($("#f_learned").value),
+    instruments: lines($("#f_instruments").value), programs: lines($("#f_programs").value), tools: lines($("#f_tools").value),
+    resources: rows("[data-res]", r => ({ title:get(r,"title"), url:safeUrl(get(r,"url")), note:get(r,"note") })).filter(r => r.title && r.url),
+    evidence: val("f_evidence"),
+    images: rows("[data-img]", r => ({ src:r.dataset.src, alt:get(r,"alt") })),
+    documents: rows("[data-doc]", r => ({ title:get(r,"title"), url:safeUrl(get(r,"url")) })).filter(d => d.title && d.url),
+    quiz: rows("[data-quiz]", r => {
+      const options = lines(r.querySelector('[data-k="options"]').value);
+      const correct = Math.min(Math.max(parseInt(get(r,"correct"),10)-1 || 0, 0), Math.max(options.length-1,0));
+      return { q:get(r,"q"), options, correct, why:get(r,"why") };
+    }).filter(q => q.q && q.options.length >= 2)
+  };
+}
+async function save(e){
+  e.preventDefault();
+  const d = collect();
+  if (isNew && mods.some(m => m.id === d.id)) return toast("Ya existe un módulo con ese ID.");
+  const orden = parseInt($("#f_orden").value,10) || 0;
+  const { error } = await sb.from("modulos").upsert({ id:d.id, orden, data:d, updated_at:new Date().toISOString() });
+  if (error) return toast("No se pudo guardar: " + error.message);
+  toast("✓ Guardado. Ya se ve en el sitio.");
+  isNew = false; await loadAll(); cur = JSON.parse(JSON.stringify(mods.find(m => m.id === d.id))); curOrden = orden; renderList(); renderEditor();
+}
+async function removeModule(){
+  if (!confirm(`¿Eliminar el módulo "${cur.title}"? No se puede deshacer.`)) return;
+  const { error } = await sb.from("modulos").delete().eq("id", cur.id);
+  if (error) return toast("No se pudo eliminar: " + error.message);
+  cur = null; $("#editor").innerHTML = '<div class="card"><p>Módulo eliminado.</p></div>'; toast("Módulo eliminado."); loadAll();
+}
+</script>
+</body>
+</html>

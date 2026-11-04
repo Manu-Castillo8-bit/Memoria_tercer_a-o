@@ -262,6 +262,25 @@
     .toast { position: fixed; right: 20px; bottom: 20px; z-index: 50; max-width: min(360px, calc(100% - 40px)); padding: 12px 16px; border: 1px solid rgba(67,224,236,.35); border-radius: 12px; color: var(--text); background: var(--surface-2); box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .22s ease; }
     .toast.show { opacity: 1; transform: translateY(0); }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    /* Ficha de módulo (estructura de 6 secciones) */
+    .ficha { padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+    .ficha-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .ficha-head h3 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
+    .ficha-sum { margin: 10px 0 0; color: var(--muted); font-size: .88rem; }
+    .learned { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: .84rem; }
+    .sec-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .sec { position: relative; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 12px; background: var(--surface-2); }
+    .sec h4 { margin: 0 34px 7px 0; color: var(--c); font-size: .98rem; }
+    html[data-theme="light"] .sec h4 { color: color-mix(in srgb, var(--c) 55%, #000); }
+    .sec-min { position: absolute; top: 13px; right: 14px; color: var(--muted-2); font: .72rem ui-monospace, Consolas, monospace; }
+    .sec-min.low { color: var(--danger); }
+    .sec ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: .82rem; }
+    .sec li { margin: 5px 0; }
+    .sec p, .hint { margin: 0; color: var(--muted); font-size: .82rem; }
+    .hint { opacity: .8; }
+    .sec .resource-list, .sec .image-preview-grid { margin-top: 8px; }
+    a.preview-tile { display: block; text-decoration: none; }
+    @media (max-width: 600px) { .sec-grid { grid-template-columns: 1fr; } }
     @media (max-width: 900px) {
       .hero-layout { grid-template-columns: 1fr; }
       .dashboard-card { max-width: 560px; }
@@ -308,6 +327,7 @@
       </a>
       <div class="top-actions">
         <a class="ghost-btn" href="#modulos"><span aria-hidden="true">▦</span><span class="top-label">Explorar módulos</span></a>
+        <a class="ghost-btn" href="admin.html"><span aria-hidden="true">⚙</span><span class="top-label">Admin</span></a>
         <button class="icon-btn" id="themeToggle" type="button" aria-label="Cambiar a modo claro" title="Cambiar tema">☼</button>
       </div>
     </div>
@@ -322,7 +342,7 @@
           <p class="hero-description">Un espacio central para organizar tus módulos técnicos, documentar lo aprendido y comprobar tus conocimientos. Abre cada ficha para consultar los recursos, completar tu resumen personal y guardar tus evidencias.</p>
           <div class="hero-note">
             <span class="pill"><span class="status-dot"></span> Progreso guardado en este dispositivo</span>
-            <span class="pill">8 módulos organizados</span>
+            <span class="pill" id="moduleCount">Cargando módulos…</span>
             <span class="pill">Quizzes con retroalimentación</span>
           </div>
         </div>
@@ -342,7 +362,7 @@
           <h2 id="modules-title">Explora tus módulos</h2>
           <p>Busca por tema, filtra por docente o por área y abre una ficha para trabajar.</p>
         </div>
-        <span class="pill">Javier <span aria-hidden="true">·</span> Arcides</span>
+        <span class="pill" id="teacherPill"></span>
       </div>
 
       <div class="filters" role="search" aria-label="Buscar y filtrar módulos">
@@ -412,7 +432,7 @@
   <footer>
     <div class="container footer-inner">
       <div><strong>NEXUS / ACADEMIC LAB</strong><br>Bitácora personal de aprendizaje técnico.</div>
-      <div>HTML · CSS · JavaScript <span aria-hidden="true">|</span> Sin frameworks ni bases de datos externas.</div>
+      <div>HTML · CSS · JavaScript <span aria-hidden="true">|</span> Datos en <code>modulos.js</code> o Supabase.</div>
     </div>
   </footer>
 
@@ -429,190 +449,11 @@
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="config.js"></script>
+  <script src="modulos.js"></script>
   <script>
-    /* =========================================================
-       NEXUS · CONTENIDO Y FUNCIONES
-
-       PERSONALIZACIÓN RÁPIDA:
-       - En cada objeto del arreglo `modules`, cambia `personalSummary`
-         para escribir tu resumen inicial.
-       - Coloca imágenes en una carpeta, por ejemplo `imagenes/`, y
-         agrega objetos en `images`: { src: "imagenes/mi-foto.jpg", alt: "..." }.
-       - Agrega documentos en `documents`: { title: "Mi informe", url: "https://..." }.
-       - También puedes cargar imágenes y añadir enlaces directamente
-         desde la ficha de cada módulo. Esos cambios se guardan localmente.
-       ========================================================= */
-
-    const modules = [
-      {
-        id: "m32", code: "3.2", teacher: "Javier", area: "soporte", areaLabel: "Soporte técnico", icon: "⌘", accent: "#43e0ec",
-        title: "Mantenimiento y aseguramiento de la operación del sistema informático",
-        description: "Conservar los equipos y servicios informáticos disponibles, seguros y funcionando de forma confiable.",
-        intro: "Este módulo trata de planificar revisiones, detectar fallas, aplicar mantenimiento preventivo y registrar las acciones realizadas. El objetivo no es solamente reparar cuando algo deja de funcionar: también es reducir riesgos y mantener la información protegida.",
-        instruments: ["Multímetro digital: instrumento de diagnóstico eléctrico que debe utilizar personal capacitado y siguiendo normas de seguridad.", "Termómetro infrarrojo: permite observar temperaturas superficiales y reconocer posibles señales de calentamiento."],
-        programs: ["Windows 11 y Windows Update: sistema y servicio para mantener el equipo actualizado.", "Microsoft Defender: herramientas integradas para revisar y proteger el sistema frente a amenazas."],
-        tools: ["Administrador de tareas: permite observar aplicaciones, procesos y consumo de recursos.", "Visor de eventos: registra sucesos del sistema que ayudan a analizar errores e interrupciones."],
-        resources: [
-          { title: "Solución de problemas de actualizaciones de Windows", url: "https://support.microsoft.com/en-us/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows", note: "Microsoft Support · diagnóstico de actualizaciones" },
-          { title: "Solución de problemas de inicio de Windows", url: "https://learn.microsoft.com/es-es/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting", note: "Microsoft Learn · arranque y Visor de eventos" },
-          { title: "Documentación de seguridad de Windows", url: "https://learn.microsoft.com/windows/security", note: "Microsoft Learn · protección del sistema" }
-        ],
-        evidence: "Elabora un informe de mantenimiento preventivo de un equipo. Incluye inventario básico, estado observado, incidencias, recomendaciones, fecha y responsable. Añade capturas o fotografías autorizadas y evita incluir contraseñas o datos privados.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Cuál es la finalidad principal del mantenimiento preventivo?", options: ["Esperar a que el equipo falle", "Reducir la posibilidad de fallas y conservar el funcionamiento", "Eliminar todos los archivos del equipo"], correct: 1, why: "El mantenimiento preventivo busca anticiparse a los problemas mediante revisiones y cuidados planificados." },
-          { q: "¿Qué herramienta de Windows permite consultar registros de sucesos?", options: ["Visor de eventos", "Calculadora", "Bloc de notas"], correct: 0, why: "El Visor de eventos reúne registros del sistema y de las aplicaciones para apoyar el diagnóstico." },
-          { q: "¿Por qué es importante mantener copias de seguridad?", options: ["Para aumentar el brillo", "Para proteger y recuperar información", "Para cambiar el teclado"], correct: 1, why: "Una copia de seguridad ayuda a recuperar datos ante errores, daños o pérdidas." }
-        ]
-      },
-      {
-        id: "m33", code: "3.3", teacher: "Javier", area: "datos", areaLabel: "Bases de datos", icon: "▤", accent: "#8b9cff",
-        title: "Administración de Bases de Datos",
-        description: "Organizar, proteger, respaldar y supervisar bases de datos para que la información sea confiable.",
-        intro: "Administrar una base de datos significa controlar cómo se almacena la información, quién puede consultarla o modificarla, cómo se mantiene su rendimiento y cómo se recupera si ocurre un problema.",
-        instruments: ["Diccionario de datos: describe tablas, campos, tipos de datos, relaciones y restricciones.", "Indicadores de rendimiento: métricas como conexiones, espacio utilizado y duración de consultas."],
-        programs: ["PostgreSQL: sistema gestor de bases de datos relacional.", "MySQL: gestor relacional utilizado en aplicaciones y servicios web."],
-        tools: ["pgAdmin: interfaz gráfica para administrar servidores y bases de datos PostgreSQL.", "DB Browser for SQLite: herramienta visual para explorar y editar archivos de bases de datos SQLite."],
-        resources: [
-          { title: "PostgreSQL: respaldo y recuperación", url: "https://www.postgresql.org/docs/current/backup.html", note: "Documentación oficial de PostgreSQL" },
-          { title: "SQLite Backup API", url: "https://www.sqlite.org/backup.html", note: "Documentación oficial de SQLite" },
-          { title: "Manual de referencia de MySQL 8.4", url: "https://dev.mysql.com/doc/refman/8.4/en/", note: "Documentación oficial de MySQL" }
-        ],
-        evidence: "Presenta un esquema de una base de datos con tablas relacionadas, claves primarias y foráneas. Agrega una breve explicación de usuarios y permisos, una consulta de ejemplo y una propuesta de respaldo periódico.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué función cumple una clave primaria?", options: ["Identifica de forma única cada registro", "Guarda imágenes del sistema", "Cambia el color de una tabla"], correct: 0, why: "La clave primaria identifica de forma única una fila y ayuda a mantener la integridad de los datos." },
-          { q: "¿Para qué sirve una copia de seguridad de una base de datos?", options: ["Para borrar usuarios", "Para recuperar información ante una pérdida o fallo", "Para cambiar el lenguaje de programación"], correct: 1, why: "El respaldo permite restaurar datos cuando la base original se daña o se pierde." },
-          { q: "¿Qué práctica mejora la seguridad de una base de datos?", options: ["Compartir la cuenta administradora", "Dar a todos los usuarios permisos completos", "Asignar permisos según las tareas de cada usuario"], correct: 2, why: "El principio de mínimo privilegio limita el acceso a lo que cada usuario realmente necesita." }
-        ]
-      },
-      {
-        id: "m34", code: "3.4", teacher: "Javier", area: "documentacion", areaLabel: "Documentación", icon: "▧", accent: "#c18cff",
-        title: "Elaboración de documentación de Sistemas informáticos",
-        description: "Registrar cómo funciona un sistema, cómo se instala y cómo se utiliza o mantiene.",
-        intro: "La documentación explica un sistema para que otras personas puedan comprenderlo, utilizarlo, mantenerlo y mejorarlo. Debe ser clara, ordenada, actualizada y adecuada a quien la va a leer.",
-        instruments: ["Diccionario de datos: registra el significado y formato de los datos del sistema.", "Diagramas UML o de flujo: representan procesos, actores, componentes y relaciones."],
-        programs: ["LibreOffice Writer o Microsoft Word: redactar manuales, informes y guías.", "Visual Studio Code: editar archivos Markdown y documentación técnica junto al código."],
-        tools: ["Markdown: formato ligero para crear documentación organizada en texto.", "Mermaid: permite generar diagramas a partir de definiciones escritas."],
-        resources: [
-          { title: "Introducción a Mermaid", url: "https://mermaid.js.org/intro/", note: "Diagramas y visualizaciones mediante texto" },
-          { title: "Acerca de los archivos README", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes", note: "GitHub Docs · documentación de proyectos" },
-          { title: "Primeros pasos con GitHub Pages", url: "https://docs.github.com/en/pages/getting-started-with-github-pages", note: "GitHub Docs · publicación de sitios" }
-        ],
-        evidence: "Crea un pequeño manual técnico de un sistema conocido. Incluye portada, objetivo, requisitos, descripción de funciones, capturas con texto alternativo, instrucciones de uso, solución de problemas y control de versiones.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Cuál es una característica de una buena documentación técnica?", options: ["Usa términos confusos", "Es clara, ordenada y está actualizada", "Oculta los pasos importantes"], correct: 1, why: "La documentación debe permitir que otra persona entienda y utilice el sistema sin depender de explicaciones improvisadas." },
-          { q: "¿Qué información suele incluir un README?", options: ["Qué hace el proyecto y cómo comenzar", "Contraseñas de los usuarios", "Datos privados del equipo"], correct: 0, why: "Un README presenta el proyecto, su utilidad, instrucciones iniciales y formas de colaboración." },
-          { q: "¿Para qué se puede usar Mermaid?", options: ["Reemplazar una base de datos", "Crear diagramas usando texto", "Actualizar el sistema operativo"], correct: 1, why: "Mermaid transforma definiciones textuales en diagramas como flujos y secuencias." }
-        ]
-      },
-      {
-        id: "m38", code: "3.8", teacher: "Javier", area: "software", areaLabel: "Desarrollo de software", icon: "⌬", accent: "#56d6b1",
-        title: "Proyecto innovador de Desarrollo de Software",
-        description: "Diseñar una solución tecnológica útil, probarla y presentarla con una propuesta de valor.",
-        intro: "Un proyecto innovador parte de una necesidad real. El equipo investiga a quién afecta, define el problema, propone una solución, construye un prototipo y lo mejora con pruebas y comentarios de usuarios.",
-        instruments: ["Entrevista o encuesta: ayuda a conocer necesidades y dificultades de los usuarios.", "Prototipo o wireframe: representa la estructura de una solución antes de programarla por completo."],
-        programs: ["Visual Studio Code: editor para desarrollar y organizar el código.", "Figma: programa de diseño colaborativo para construir prototipos de interfaces."],
-        tools: ["Git y GitHub: controlan versiones y facilitan la colaboración del equipo.", "Tablero Kanban: visualiza tareas pendientes, en proceso y terminadas."],
-        resources: [
-          { title: "GitHub Flow", url: "https://docs.github.com/en/get-started/using-github/github-flow", note: "GitHub Docs · trabajo colaborativo con ramas" },
-          { title: "La Guía Scrum", url: "https://scrumguides.org/scrum-guide.html", note: "Guía oficial de Scrum · marco de trabajo" },
-          { title: "OWASP Top 10", url: "https://owasp.org/projects/Top-Ten", note: "Riesgos frecuentes de seguridad en aplicaciones web" }
-        ],
-        evidence: "Presenta una propuesta de proyecto con nombre, problema que resuelve, usuarios, objetivo, boceto de interfaz, funciones principales, planificación de tareas, pruebas realizadas y mejoras futuras.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué debería orientar el inicio de un proyecto innovador?", options: ["Una necesidad o problema de usuarios", "El color del teclado", "La cantidad de páginas del informe"], correct: 0, why: "Una solución tiene sentido cuando responde a una necesidad identificada y ofrece valor a sus usuarios." },
-          { q: "¿Para qué se utiliza Git en un proyecto?", options: ["Para medir la temperatura", "Para registrar cambios en el código", "Para diseñar circuitos eléctricos"], correct: 1, why: "Git registra versiones y permite revisar o recuperar cambios del proyecto." },
-          { q: "¿Por qué se prueba un prototipo con usuarios?", options: ["Para evitar escuchar opiniones", "Para descubrir problemas y mejorar la solución", "Para terminar sin documentar"], correct: 1, why: "La retroalimentación permite validar si la propuesta es comprensible y útil." }
-        ]
-      },
-      {
-        id: "m4", code: "4", teacher: "Arcides", area: "cooperativismo", areaLabel: "Cooperativismo", icon: "◎", accent: "#ffc76a",
-        title: "Puesta en marcha de la empresa en asociatividad cooperativa",
-        description: "Comprender cómo un grupo organiza una empresa cooperativa con participación y objetivos compartidos.",
-        intro: "Una cooperativa es una organización formada por personas que se asocian voluntariamente para atender necesidades comunes. Su funcionamiento se apoya en la participación democrática, la responsabilidad compartida y la colaboración.",
-        instruments: ["Diagnóstico participativo: identifica necesidades, recursos y oportunidades de la comunidad.", "Modelo de negocio cooperativo: organiza a quién se sirve, qué valor se ofrece y cómo se sostendrá la iniciativa."],
-        programs: ["LibreOffice Calc o Microsoft Excel: elaborar presupuestos, proyecciones y registros.", "LibreOffice Writer o Microsoft Word: redactar actas, planes y documentos de organización."],
-        tools: ["Análisis FODA: identifica fortalezas, oportunidades, debilidades y amenazas.", "Presupuesto y flujo de caja: ayudan a planificar ingresos, gastos y disponibilidad de fondos."],
-        resources: [
-          { title: "Guía para planificar y poner en marcha una cooperativa", url: "https://www.ilo.org/publications/step-step-guide-planning-and-starting-cooperative", note: "Organización Internacional del Trabajo (OIT)" },
-          { title: "Identidad, valores y principios cooperativos", url: "https://www.ica.coop/en/cooperatives/cooperative-identity", note: "Alianza Cooperativa Internacional" },
-          { title: "Acerca de las cooperativas", url: "https://static.un.org/en/events/coopsyear/about.shtml", note: "Naciones Unidas · valores y principios" }
-        ],
-        evidence: "Elabora una propuesta de cooperativa: necesidad que atenderá, integrantes y responsabilidades, objetivo común, servicios o productos, reglas de participación, análisis FODA y presupuesto inicial.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué caracteriza a una cooperativa?", options: ["La participación y propiedad compartida de sus miembros", "Que una persona decide todo sin consultar", "Que no tiene objetivos comunes"], correct: 0, why: "Una cooperativa es una asociación voluntaria con propiedad conjunta y control democrático." },
-          { q: "¿Qué significa la letra O en el análisis FODA?", options: ["Organización", "Oportunidades", "Objetivos"], correct: 1, why: "FODA significa fortalezas, oportunidades, debilidades y amenazas." },
-          { q: "¿Para qué sirve un presupuesto inicial?", options: ["Para estimar recursos, ingresos y gastos", "Para elegir los colores del logotipo", "Para eliminar la planificación"], correct: 0, why: "El presupuesto permite calcular recursos y anticipar si la iniciativa puede sostenerse." }
-        ]
-      },
-      {
-        id: "eng3", code: "3", teacher: "Arcides", area: "ingles", areaLabel: "Inglés técnico", icon: "文", accent: "#70b5ff",
-        title: "Conversación de inglés sobre mantenimiento de sistemas informáticos",
-        description: "Practicar vocabulario, preguntas y respuestas para explicar problemas y tareas de soporte en inglés.",
-        intro: "En una conversación de soporte técnico se debe escuchar con atención, describir el problema, hacer preguntas claras y explicar qué se revisará. Conviene aprender vocabulario y practicar expresiones completas en situaciones reales.",
-        instruments: ["Glosario bilingüe: reúne términos técnicos, traducción y un ejemplo de uso.", "Guion de diálogo: organiza los turnos de conversación entre usuario y técnico."],
-        programs: ["British Council LearnEnglish: lecciones y actividades para practicar conversación.", "Cambridge Dictionary: definiciones, pronunciación y ejemplos de vocabulario en inglés."],
-        tools: ["Tarjetas de vocabulario: permiten practicar término, significado y pronunciación.", "Grabadora de voz del dispositivo: sirve para escuchar y revisar la claridad de la práctica oral."],
-        resources: [
-          { title: "Practicar habilidades de conversación", url: "https://learnenglish.britishcouncil.org/free-resources/speaking", note: "British Council · actividades por nivel" },
-          { title: "Speaking B1", url: "https://learnenglish.britishcouncil.org/free-resources/speaking/b1", note: "British Council · conversaciones intermedias" },
-          { title: "Computer · Cambridge Dictionary", url: "https://dictionary.cambridge.org/dictionary/english/computer", note: "Cambridge · significado y pronunciación" }
-        ],
-        evidence: "Graba o presenta en clase una conversación breve entre un usuario y un técnico. Incluye saludo, descripción del problema, preguntas de diagnóstico, explicación de la acción y despedida. Añade el guion y un glosario de al menos diez palabras.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué significa “backup” en informática?", options: ["Copia de seguridad", "Pantalla", "Teclado"], correct: 0, why: "Backup es una copia de seguridad que ayuda a recuperar información." },
-          { q: "¿Cuál es una forma clara de preguntar por un problema?", options: ["What seems to be the problem?", "Where is my blue chair?", "I am a window."], correct: 0, why: "What seems to be the problem? significa “¿Cuál parece ser el problema?”." },
-          { q: "¿Qué significa “The computer is running slowly”?", options: ["La computadora está apagada", "La computadora está funcionando lentamente", "La computadora es nueva"], correct: 1, why: "Running slowly describe un equipo que responde o trabaja con lentitud." }
-        ]
-      },
-      {
-        id: "m2movil", code: "2", teacher: "Arcides", area: "movil", areaLabel: "Desarrollo móvil", icon: "▣", accent: "#57d9c4",
-        title: "Desarrollo de componentes para dispositivos móviles",
-        description: "Crear partes de una aplicación móvil considerando interfaz, interacción y experiencia de usuario.",
-        intro: "Un componente móvil puede ser un botón, formulario, menú, lista, tarjeta o pantalla. Para construirlo se debe pensar en el tamaño de pantalla, la navegación, la accesibilidad y la respuesta ante las acciones del usuario.",
-        instruments: ["Dispositivo Android o emulador: permite observar y probar la aplicación en un entorno móvil.", "Wireframe: boceto que organiza los elementos de una pantalla antes del desarrollo."],
-        programs: ["Android Studio: entorno oficial de desarrollo para aplicaciones Android.", "Flutter: kit de herramientas para crear interfaces y aplicaciones multiplataforma."],
-        tools: ["Android Emulator: permite ejecutar y probar aplicaciones en dispositivos virtuales.", "Kotlin: lenguaje recomendado para el desarrollo Android moderno."],
-        resources: [
-          { title: "Cursos de formación de Android", url: "https://developer.android.com/courses", note: "Android Developers · formación oficial" },
-          { title: "Kotlin para Android", url: "https://kotlinlang.org/docs/android-overview.html", note: "Kotlin Docs · desarrollo Android" },
-          { title: "Documentación de Flutter", url: "https://docs.flutter.dev/", note: "Flutter · guías, ejemplos y referencias" }
-        ],
-        evidence: "Presenta un prototipo móvil con al menos tres componentes (por ejemplo, encabezado, formulario y botón). Incluye capturas de pantalla, explicación de cada componente y una lista de pruebas realizadas en un teléfono o emulador.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué es un componente de una aplicación móvil?", options: ["Una parte de la interfaz o funcionalidad", "Un cable de alimentación", "Un archivo de música obligatorio"], correct: 0, why: "Un componente representa una parte reutilizable o funcional, como un botón o formulario." },
-          { q: "¿Para qué sirve un emulador?", options: ["Para diseñar una cooperativa", "Para probar una aplicación en un dispositivo virtual", "Para reemplazar el código fuente"], correct: 1, why: "El emulador reproduce un entorno de dispositivo para ejecutar y probar la app." },
-          { q: "¿Qué debe considerar una interfaz móvil?", options: ["Solo el color", "El tamaño de pantalla, la navegación y la accesibilidad", "Únicamente el nombre del archivo"], correct: 1, why: "Una buena interfaz se adapta a pantallas y permite que distintas personas la utilicen." }
-        ]
-      },
-      {
-        id: "m31", code: "3.1", teacher: "Arcides", area: "software", areaLabel: "Desarrollo de software", icon: "⌘", accent: "#a78bfa",
-        title: "Desarrollo de aplicaciones de software para la solución de problemas",
-        description: "Analizar una necesidad y transformarla en una aplicación que aporte una solución comprobable.",
-        intro: "El desarrollo de software comienza por comprender el problema y a las personas involucradas. Después se definen requisitos, se diseña una solución, se programa, se prueba y se mejora con base en los resultados.",
-        instruments: ["Lista de requisitos: registra lo que la aplicación debe hacer y las condiciones que debe cumplir.", "Diagrama de flujo: representa los pasos y decisiones de un proceso antes de programarlo."],
-        programs: ["Visual Studio Code: editor de código para distintos lenguajes y tecnologías.", "Visual Studio Community: entorno de desarrollo para crear y depurar aplicaciones."],
-        tools: ["Git y GitHub: permiten llevar historial de cambios y colaborar.", "Casos de prueba: describen entradas, pasos y resultados esperados para revisar funciones."],
-        resources: [
-          { title: "Aprende desarrollo web", url: "https://developer.mozilla.org/es/docs/Learn_web_development", note: "MDN en español · HTML, CSS y JavaScript" },
-          { title: "GitHub Flow", url: "https://docs.github.com/en/get-started/using-github/github-flow", note: "GitHub Docs · colaboración y cambios" },
-          { title: "OWASP Top 10", url: "https://owasp.org/projects/Top-Ten", note: "OWASP · riesgos de seguridad de aplicaciones" }
-        ],
-        evidence: "Documenta una pequeña aplicación que resuelva un problema concreto. Explica el problema, usuarios, requisitos funcionales, diagrama de flujo, interfaz, pruebas y resultado. Adjunta capturas y el enlace al repositorio si está publicado.",
-        personalSummary: "", images: [], documents: [],
-        quiz: [
-          { q: "¿Qué se debe hacer antes de comenzar a programar una solución?", options: ["Comprender el problema y definir requisitos", "Publicar sin probar", "Elegir primero una animación"], correct: 0, why: "Entender el problema permite definir qué debe resolver la aplicación y para quién." },
-          { q: "¿Qué es un requisito funcional?", options: ["Una característica que describe una función que el sistema debe realizar", "El color favorito del desarrollador", "La marca del monitor"], correct: 0, why: "Un requisito funcional describe un servicio o comportamiento que el sistema debe ofrecer." },
-          { q: "¿Qué comprueba un caso de prueba?", options: ["Que el código tenga muchos comentarios", "Que una función produzca el resultado esperado", "Que el equipo tenga internet siempre"], correct: 1, why: "Un caso de prueba compara el resultado real con el resultado esperado para una situación definida." }
-        ]
-      }
-    ];
+    /* NEXUS · los módulos se cargan desde Supabase (si config.js está completo) o desde modulos.js. */
+    let modules = [];
 
     const rubricCriteria = [
       { id: "content", title: "Contenido por módulo", points: 3, detail: "Cada ficha tiene 2 instrumentos, 2 programas, 2 herramientas, 3 recursos con enlace, una evidencia y quiz de 3 preguntas. Los resúmenes son propios." },
@@ -695,7 +536,7 @@
     function updateProgress() {
       const total = modules.length;
       const done = state.completed.filter(id => modules.some(module => module.id === id)).length;
-      const percent = Math.round((done / total) * 100);
+      const percent = Math.round((done / (total || 1)) * 100);
       const quizzes = Object.keys(state.scores).filter(id => modules.some(module => module.id === id)).length;
       document.getElementById("progressPercent").textContent = percent + "%";
       document.getElementById("progressFill").style.width = percent + "%";
@@ -720,13 +561,13 @@
       grid.innerHTML = filtered.map(module => {
         const done = state.completed.includes(module.id);
         return `
-          <article class="module-card" style="--card-accent:${module.accent}">
-            <div class="card-top"><span class="module-code">MÓDULO ${escapeHTML(module.code)}</span><span class="module-symbol" aria-hidden="true">${module.icon}</span></div>
+          <article class="module-card" style="--card-accent:${escapeHTML(module.accent)}">
+            <div class="card-top"><span class="module-code">MÓDULO ${escapeHTML(module.code)}</span><span class="module-symbol" aria-hidden="true">${escapeHTML(module.icon)}</span></div>
             <div class="teacher-label">PROFE ${escapeHTML(module.teacher.toUpperCase())} · ${escapeHTML(module.areaLabel.toUpperCase())}</div>
             <h3>${escapeHTML(module.title)}</h3>
             <p class="description">${escapeHTML(module.description)}</p>
-            <div class="tag-row"><span class="tag">2 instrumentos</span><span class="tag">2 programas</span><span class="tag">2 herramientas</span><span class="tag">3 recursos</span></div>
-            <div class="card-footer"><span class="card-stats">Evidencia + quiz de 3 preguntas</span><span class="completed-mark">${done ? "✓ COMPLETADO" : "EN PROGRESO"}</span></div>
+            <div class="tag-row"><span class="tag">${module.instruments.length} instrumentos</span><span class="tag">${module.programs.length} programas</span><span class="tag">${module.tools.length} herramientas</span><span class="tag">${module.resources.length} recursos</span></div>
+            <div class="card-footer"><span class="card-stats">Evidencia + quiz de ${module.quiz.length} preguntas</span><span class="completed-mark">${done ? "✓ COMPLETADO" : "EN PROGRESO"}</span></div>
             <button class="primary-btn" type="button" data-open-module="${module.id}" style="margin-top:14px; width:100%">Abrir ficha <span aria-hidden="true">↗</span></button>
           </article>`;
       }).join("");
@@ -753,7 +594,7 @@
     function renderImages(module) {
       const stored = uploadData(module.id).images;
       const configured = Array.isArray(module.images) ? module.images : [];
-      const allImages = [...configured, ...stored];
+      const allImages = stored;
       if (!allImages.length) return '<p class="editor-help">Todavía no has agregado imágenes a esta ficha.</p>';
       return `<div class="image-preview-grid">${allImages.map((img, index) => `<div class="preview-tile"><img src="${escapeHTML(img.src)}" alt="${escapeHTML(img.alt || `Imagen ${index + 1} del módulo`)}"><span>${escapeHTML(img.name || img.alt || `Imagen ${index + 1}`)}</span></div>`).join("")}</div>`;
     }
@@ -785,20 +626,11 @@
       const dialog = document.getElementById("moduleDialog");
       const draft = state.drafts[moduleId] || {};
       const lastScore = state.scores[moduleId];
-      document.getElementById("dialogEyebrow").textContent = `FICHA TÉCNICA · MÓDULO ${module.code}`;
-      document.getElementById("dialogTitle").textContent = module.title;
-      document.getElementById("dialogTeacher").textContent = `Profe ${module.teacher} · ${module.areaLabel}`;
+      document.getElementById("dialogEyebrow").textContent = "FICHA TÉCNICA";
+      document.getElementById("dialogTitle").textContent = "Módulo " + module.code;
+      document.getElementById("dialogTeacher").textContent = module.areaLabel;
       document.getElementById("dialogContent").innerHTML = `
-        <p class="dialog-intro">${escapeHTML(module.intro)}</p>
-        <div class="detail-grid">
-          <section class="detail-panel"><h3><span aria-hidden="true">⌖</span> Instrumentos</h3>${makeList(module.instruments)}</section>
-          <section class="detail-panel"><h3><span aria-hidden="true">▣</span> Programas</h3>${makeList(module.programs)}</section>
-          <section class="detail-panel"><h3><span aria-hidden="true">⌘</span> Herramientas</h3>${makeList(module.tools)}</section>
-          <section class="detail-panel"><h3><span aria-hidden="true">↗</span> Recursos de consulta</h3>
-            <div class="resource-list">${module.resources.map(resource => `<a class="resource-link" href="${escapeHTML(resource.url)}" target="_blank" rel="noopener noreferrer"><span>${escapeHTML(resource.title)}<small>${escapeHTML(resource.note)}</small></span><span aria-hidden="true">↗</span></a>`).join("")}</div>
-          </section>
-        </div>
-        <section class="evidence-box"><h3>▣ Evidencia sugerida</h3><p>${escapeHTML(module.evidence)}</p></section>
+        ${renderFicha(module)}
 
         <section class="editor-section" aria-labelledby="personal-work-title">
           <div class="editor-title"><h3 id="personal-work-title">✎ Mi trabajo y mis evidencias</h3><small>Guardado automático en este navegador</small></div>
@@ -820,14 +652,14 @@
           <div id="userDocsArea">${renderUserDocs(module)}</div>
         </section>
 
-        <section class="quiz-section" aria-labelledby="quiz-title">
+        ${module.quiz.length ? `<section class="quiz-section" aria-labelledby="quiz-title">
           <h3 id="quiz-title">◎ Quiz de repaso</h3>
-          <p>Responde las tres preguntas. Al enviar, verás tu resultado y la explicación de cada respuesta.</p>
+          <p>Responde todas las preguntas. Al enviar, verás tu resultado y la explicación de cada respuesta.</p>
           <form id="quizForm">${renderQuiz(module)}
-            <div class="quiz-actions"><button class="primary-btn" type="submit">Comprobar respuestas</button>${lastScore ? `<span class="pill">Último intento: ${lastScore.score}/3</span>` : ""}</div>
+            <div class="quiz-actions"><button class="primary-btn" type="submit">Comprobar respuestas</button>${lastScore ? `<span class="pill">Último intento: ${lastScore.score}/${lastScore.total || 3}</span>` : ""}</div>
           </form>
           <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
-        </section>
+        </section>` : ""}
         <div class="dialog-footer">
           <span class="save-note">${state.completed.includes(module.id) ? "✓ Este módulo está marcado como completado." : "Marca el módulo como completado cuando puedas explicarlo."}</span>
           <button class="primary-btn" id="toggleComplete" type="button">${state.completed.includes(module.id) ? "Desmarcar como listo" : "Marcar como completado ✓"}</button>
@@ -838,6 +670,7 @@
     }
 
     function bindDetailEvents(module) {
+      document.querySelector("[data-goto-quiz]")?.addEventListener("click", () => document.getElementById("quiz-title")?.scrollIntoView({ behavior: "smooth" }));
       const summary = document.getElementById("personalSummary");
       const evidence = document.getElementById("evidenceNotes");
       const persistDraft = () => {
@@ -887,16 +720,16 @@
       });
       bindRemoveDocEvents(module);
 
-      document.getElementById("quizForm").addEventListener("submit", event => {
+      document.getElementById("quizForm")?.addEventListener("submit", event => {
         event.preventDefault();
         const form = event.currentTarget;
         const answers = module.quiz.map((question, index) => form.querySelector(`input[name="quiz-${module.id}-${index}"]:checked`));
-        if (answers.some(answer => !answer)) { showToast("Responde las tres preguntas antes de comprobar."); return; }
+        if (answers.some(answer => !answer)) { showToast("Responde todas las preguntas antes de comprobar."); return; }
         const score = answers.reduce((total, answer, index) => total + (Number(answer.value) === module.quiz[index].correct ? 1 : 0), 0);
-        state.scores[module.id] = { score, total: 3, date: new Date().toISOString() };
+        state.scores[module.id] = { score, total: module.quiz.length, date: new Date().toISOString() };
         saveState();
         const feedback = document.getElementById("quizFeedback");
-        feedback.innerHTML = `<strong>Resultado: ${score} de 3 respuestas correctas.</strong>${module.quiz.map((question, index) => {
+        feedback.innerHTML = `<strong>Resultado: ${score} de ${module.quiz.length} respuestas correctas.</strong>${module.quiz.map((question, index) => {
           const isCorrect = Number(answers[index].value) === question.correct;
           return `<p class="feedback-line">${isCorrect ? "✓ Correcta" : "✕ Revisa esta respuesta"}. ${escapeHTML(question.why)}</p>`;
         }).join("")}`;
@@ -941,6 +774,62 @@
       });
     }
 
+    /* ---------- Datos: Supabase o modulos.js ---------- */
+    async function loadModules() {
+      const C = window.NEXUS_CONFIG || {};
+      if (C.SUPABASE_URL && C.SUPABASE_ANON_KEY) {
+        try {
+          const r = await fetch(`${C.SUPABASE_URL}/rest/v1/modulos?select=id,orden,data&order=orden.asc`, { headers: { apikey: C.SUPABASE_ANON_KEY } });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          const rows = await r.json();
+          if (rows.length) return rows.map(row => ({ ...row.data, id: row.id }));
+        } catch (error) { console.warn("Supabase no disponible, se usa modulos.js:", error); }
+      }
+      return window.MODULOS || [];
+    }
+
+    const arr = value => Array.isArray(value) ? value : [];
+    function normalize(m) {
+      return { icon: "◎", accent: "#43e0ec", teacher: "", area: "otros", areaLabel: "General", code: "", title: "Sin título", description: "", intro: "", summary: "", evidence: "", ...m,
+        learned: arr(m.learned), instruments: arr(m.instruments), programs: arr(m.programs), tools: arr(m.tools), resources: arr(m.resources), images: arr(m.images), documents: arr(m.documents), quiz: arr(m.quiz) };
+    }
+
+    function buildFilters() {
+      const teachers = [...new Set(modules.map(m => m.teacher).filter(Boolean))];
+      const areas = new Map(modules.map(m => [m.area, m.areaLabel]));
+      document.getElementById("teacherFilter").innerHTML = '<option value="all">Todos los docentes</option>' + teachers.map(t => `<option value="${escapeHTML(t)}">Profe ${escapeHTML(t)}</option>`).join("");
+      document.getElementById("areaFilter").innerHTML = '<option value="all">Todas las áreas</option>' + [...areas].map(([k, v]) => `<option value="${escapeHTML(k)}">${escapeHTML(v)}</option>`).join("");
+      document.getElementById("teacherPill").innerHTML = teachers.map(escapeHTML).join(' <span aria-hidden="true">·</span> ');
+      document.getElementById("moduleCount").textContent = `${modules.length} módulos organizados`;
+    }
+
+    /* ---------- Ficha: 6 secciones con mínimos ---------- */
+    const SECCIONES = [
+      { key: "instruments", label: "Instrumentos", min: 2, color: "#ffb52e", hint: "Guías, rúbricas, listas de cotejo y exámenes que se usaron." },
+      { key: "programs", label: "Programas", min: 2, color: "#22d3ee", hint: "Software que instalaste y usaste: editores, motores de base de datos, navegadores." },
+      { key: "tools", label: "Herramientas", min: 2, color: "#f058c8", hint: "Lenguajes, librerías, frameworks y servicios." },
+      { key: "resources", label: "Recursos", min: 3, color: "#34e0a1", hint: "Documentación oficial, tutoriales y videos, con enlace verificado." },
+      { key: "evidence", label: "Evidencias", min: 1, color: "#c9d6ff", hint: "Enlace o captura de lo que hiciste en ese módulo." },
+      { key: "quiz", label: "Quiz", min: 3, color: "#ff8f9e", hint: "Preguntas de opción múltiple con explicación." }
+    ];
+
+    function renderFicha(m) {
+      const link = (u, title, note) => { const url = safeHttpUrl(u); return url ? `<a class="resource-link" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer"><span>${escapeHTML(title || url)}${note ? `<small>${escapeHTML(note)}</small>` : ""}</span><span aria-hidden="true">↗</span></a>` : ""; };
+      const count = { instruments: m.instruments.length, programs: m.programs.length, tools: m.tools.length, resources: m.resources.length, evidence: m.images.length + m.documents.length, quiz: m.quiz.length };
+      const body = {
+        instruments: () => makeList(m.instruments), programs: () => makeList(m.programs), tools: () => makeList(m.tools),
+        resources: () => `<div class="resource-list">${m.resources.map(r => link(r.url, r.title, r.note)).join("")}</div>`,
+        evidence: () => `${m.evidence ? `<p>${escapeHTML(m.evidence)}</p>` : ""}<div class="image-preview-grid">${m.images.map(i => { const u = safeHttpUrl(i.src); return u ? `<a class="preview-tile" href="${escapeHTML(u)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHTML(u)}" alt="${escapeHTML(i.alt || "Captura de evidencia")}" loading="lazy"><span>${escapeHTML(i.alt || "Captura")}</span></a>` : ""; }).join("")}</div><div class="resource-list" style="margin-top:8px">${m.documents.map(d => link(d.url, d.title)).join("")}</div>`,
+        quiz: () => `<p>${m.quiz.length} preguntas de opción múltiple con explicación.</p><button class="soft-btn" type="button" data-goto-quiz style="margin-top:8px;min-height:34px">Hacer el quiz ↓</button>`
+      };
+      return `<div class="ficha">
+        <div class="ficha-head"><h3>${escapeHTML(m.title)}</h3><span class="pill">${m.teacher ? "Profe " + escapeHTML(m.teacher) : "Docente"}</span></div>
+        <p class="ficha-sum">${escapeHTML(m.summary || m.intro || "Resumen en 2 o 3 líneas con tus palabras y 3 cosas que aprendiste.")}</p>
+        ${m.learned.length ? `<ol class="learned">${m.learned.map(x => `<li>${escapeHTML(x)}</li>`).join("")}</ol>` : ""}
+        <div class="sec-grid">${SECCIONES.map(s => { const n = count[s.key], low = n < s.min; return `<section class="sec" style="--c:${s.color}"><span class="sec-min${low ? " low" : ""}">${low ? n + "/" : ""}mín. ${s.min}</span><h4>${s.label}</h4>${n || (s.key === "evidence" && m.evidence) ? body[s.key]() : `<p class="hint">${s.hint}</p>`}</section>`; }).join("")}</div>
+      </div>`;
+    }
+
     // Eventos generales
     document.getElementById("themeToggle").addEventListener("click", () => {
       state.theme = state.theme === "dark" ? "light" : "dark";
@@ -971,10 +860,11 @@
     });
 
     // Inicio
-    renderTheme();
-    renderCards();
-    updateProgress();
-    renderRubric();
+    (async () => {
+      renderTheme(); renderRubric();
+      modules = (await loadModules()).map(normalize);
+      buildFilters(); renderCards(); updateProgress();
+    })();
   </script>
 </body>
 </html>

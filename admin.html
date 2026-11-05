@@ -133,7 +133,7 @@ $("#list").addEventListener("click", e => {
   cur = JSON.parse(JSON.stringify(m)); curOrden = m._orden || 0; isNew = false; renderList(); renderEditor();
 });
 $("#newBtn").addEventListener("click", () => {
-  cur = { id:"", code:"", teacher:"", area:"", areaLabel:"", icon:"◎", accent:"#43e0ec", title:"", description:"", intro:"", summary:"", learned:[], instruments:[], programs:[], tools:[], resources:[], evidence:"", images:[], documents:[], quiz:[] };
+  cur = { id:"", code:"", teacher:"", area:"", areaLabel:"", icon:"◎", accent:"#43e0ec", title:"", description:"", intro:"", instruments:[], programs:[], tools:[], resources:[], evidence:"", images:[], documents:[], quiz:[] };
   curOrden = (mods.reduce((a,m)=>Math.max(a,m._orden||0),0)) + 1; isNew = true; renderList(); renderEditor();
 });
 
@@ -167,24 +167,19 @@ function renderEditor(){
       <label>Introducción</label><textarea id="f_intro">${esc(m.intro)}</textarea>
     </div>
 
-    <div class="card"><h3>1 · Resumen y lo que aprendí</h3>
-      <label>Resumen con tus palabras (2–3 líneas)</label><textarea id="f_summary">${esc(m.summary)}</textarea>
-      <label>3 cosas que aprendí (una por línea)</label><textarea id="f_learned">${esc((m.learned||[]).join("\n"))}</textarea>
-    </div>
-
-    <div class="card"><h3>2 · Instrumentos · Programas · Herramientas</h3>
+    <div class="card"><h3>1 · Instrumentos · Programas · Herramientas</h3>
       <p class="help">Una por línea. Mínimo 2 en cada una.</p>
       <label>Instrumentos</label><textarea id="f_instruments">${esc((m.instruments||[]).join("\n"))}</textarea>
       <label>Programas</label><textarea id="f_programs">${esc((m.programs||[]).join("\n"))}</textarea>
       <label>Herramientas</label><textarea id="f_tools">${esc((m.tools||[]).join("\n"))}</textarea>
     </div>
 
-    <div class="card"><h3>3 · Recursos (mínimo 3)</h3>
+    <div class="card"><h3>2 · Recursos (mínimo 3)</h3>
       <div id="resList">${(m.resources||[]).map(rowRes).join("")}</div>
       <p><button type="button" class="btn sm" id="addRes">+ Añadir recurso</button></p>
     </div>
 
-    <div class="card"><h3>4 · Evidencias</h3>
+    <div class="card"><h3>3 · Evidencias</h3>
       <label>¿Qué se pide como evidencia?</label><textarea id="f_evidence">${esc(m.evidence)}</textarea>
       <label>Subir imágenes (se optimizan y se guardan en Supabase Storage)</label>
       <input id="f_upload" type="file" accept="image/png,image/jpeg,image/webp" multiple>
@@ -195,7 +190,7 @@ function renderEditor(){
       <p><button type="button" class="btn sm" id="addDoc">+ Añadir documento</button></p>
     </div>
 
-    <div class="card"><h3>5 · Quiz (mínimo 3 preguntas)</h3>
+    <div class="card"><h3>4 · Quiz (mínimo 3 preguntas)</h3>
       <div id="quizList">${(m.quiz||[]).map(rowQuiz).join("")}</div>
       <p><button type="button" class="btn sm" id="addQuiz">+ Añadir pregunta</button></p>
     </div>
@@ -259,7 +254,7 @@ function collect(){
   return {
     id: val("f_id"), code: val("f_code"), teacher: val("f_teacher"), area: val("f_area"), areaLabel: val("f_areaLabel"),
     icon: val("f_icon") || "◎", accent: $("#f_accent").value, title: val("f_title"), description: val("f_description"),
-    intro: val("f_intro"), summary: val("f_summary"), learned: lines($("#f_learned").value),
+    intro: val("f_intro"),
     instruments: lines($("#f_instruments").value), programs: lines($("#f_programs").value), tools: lines($("#f_tools").value),
     resources: rows("[data-res]", r => ({ title:get(r,"title"), url:safeUrl(get(r,"url")), note:get(r,"note") })).filter(r => r.title && r.url),
     evidence: val("f_evidence"),

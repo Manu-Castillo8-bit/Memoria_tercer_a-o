@@ -224,24 +224,10 @@
     .evidence-box { margin-top: 13px; padding: 17px; border: 1px solid rgba(80,214,162,.26); border-radius: 16px; background: color-mix(in srgb, var(--green) 6%, var(--surface)); }
     .evidence-box h3 { margin: 0 0 7px; font-size: .96rem; }
     .evidence-box p { margin: 0; color: var(--muted); font-size: .85rem; }
-    .editor-section { margin-top: 18px; padding: 19px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
-    .editor-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-    .editor-title h3 { margin: 0; font-size: 1rem; }
-    .editor-title small { color: var(--muted-2); font-size: .72rem; }
-    .field-label { display: block; margin: 13px 0 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }
-    textarea.control { min-height: 110px; resize: vertical; line-height: 1.5; }
-    .editor-help { margin: 6px 0 0; color: var(--muted-2); font-size: .72rem; }
-    .upload-row { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
-    input[type="file"] { max-width: 100%; padding: 8px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); background: var(--surface-2); font-size: .76rem; }
     .image-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 9px; margin-top: 12px; }
     .preview-tile { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); }
     .preview-tile img { display: block; width: 100%; height: 88px; object-fit: cover; }
     .preview-tile span { display: block; overflow: hidden; padding: 6px 8px; color: var(--muted); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
-    .doc-form { display: grid; grid-template-columns: minmax(130px, .8fr) minmax(180px, 1.3fr) auto; gap: 8px; }
-    .user-docs { display: grid; gap: 7px; margin-top: 12px; }
-    .user-doc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: .8rem; }
-    .user-doc a { overflow-wrap: anywhere; }
-    .remove-btn { padding: 4px 8px; border: 0; border-radius: 8px; color: var(--danger); background: transparent; cursor: pointer; }
     .quiz-section { margin-top: 18px; padding: 19px; border: 1px solid rgba(167,139,250,.25); border-radius: 16px; background: color-mix(in srgb, var(--violet) 5%, var(--surface)); }
     .quiz-section h3 { margin: 0 0 5px; font-size: 1rem; }
     .quiz-section > p { margin: 0 0 14px; color: var(--muted); font-size: .8rem; }
@@ -308,8 +294,6 @@
       .dialog-head { padding: 17px; }
       .dialog-content { padding: 16px; }
       .detail-grid { grid-template-columns: 1fr; }
-      .doc-form { grid-template-columns: 1fr; }
-      .upload-row { grid-template-columns: 1fr; }
       .footer-inner { flex-direction: column; align-items: start; }
       .dashboard-value strong { font-size: 2.8rem; }
     }
@@ -338,8 +322,8 @@
       <div class="hero-layout">
         <div>
           <div class="eyebrow">Mapa de aprendizaje · 2026</div>
-          <h1 id="hero-title">Aprende. Construye.<br><span class="gradient">Deja evidencia.</span></h1>
-          <p class="hero-description">Un espacio central para organizar tus módulos técnicos, documentar lo aprendido y comprobar tus conocimientos. Abre cada ficha para consultar los recursos, completar tu resumen personal y guardar tus evidencias.</p>
+          <h1 id="hero-title">Aprende. Construye.<br><span class="gradient">Visualiza evidencias.</span></h1>
+          <p class="hero-description">Un espacio central para consultar tus módulos técnicos, revisar los contenidos aprendidos y comprobar tus conocimientos.</p>
           <div class="hero-note">
             <span class="pill"><span class="status-dot"></span> Progreso guardado en este dispositivo</span>
             <span class="pill" id="moduleCount">Cargando módulos…</span>
@@ -398,30 +382,30 @@
       <div class="module-grid" id="moduleGrid" aria-live="polite"></div>
     </section>
 
-    <!-- <section class="guide-strip" aria-label="Cómo aprovechar el sitio">
-     <article class="guide-item">
+    <section class="guide-strip" aria-label="Cómo aprovechar el sitio">
+      <article class="guide-item">
         <div class="guide-icon" aria-hidden="true">⌁</div>
-        <h3>Aprende con tus palabras</h3>
-        <p>La ficha aporta una guía inicial. Escribe en el resumen qué entendiste, agrega ejemplos de clase y confirma que puedes explicarlo sin leer.</p>
+        <h3>Consulta tus guías</h3>
+        <p>La ficha aporta una guía inicial de instrumentos, programas, herramientas y recursos configurados por tu docente para apoyar tu aprendizaje.</p>
       </article>
       <article class="guide-item">
         <div class="guide-icon" aria-hidden="true">▧</div>
-        <h3>Organiza tus evidencias</h3>
-        <p>Adjunta imágenes desde tu dispositivo y guarda enlaces a tus documentos. Se muestran como apoyo en la ficha de cada módulo.</p>
+        <h3>Revisa las evidencias</h3>
+        <p>Consulta las capturas, documentación y archivos adjuntos cargados para validar los conocimientos del módulo.</p>
       </article>
       <article class="guide-item">
         <div class="guide-icon" aria-hidden="true">◉</div>
         <h3>Comprueba lo aprendido</h3>
-        <p>Responde las <strong>3 preguntas</strong> de cada quiz. Recibirás explicación y podrás intentarlo otra vez.</p>
+        <p>Responde las <strong>preguntas</strong> de cada quiz. Recibirás explicación y podrás intentarlo otra vez.</p>
       </article>
-    </section> -->
+    </section>
 
     <section class="rubric-section" aria-labelledby="rubric-title">
       <div class="rubric-header">
         <div>
           <div class="eyebrow">Control de entrega</div>
           <h2 id="rubric-title">Checklist de evaluación</h2>
-          <p>Marca cada criterio cuando el equipo pueda demostrar que lo cumple. Esta lista es una autoevaluación.</p>
+          <p>Marca cada criterio cuando el equipo pueda demostrar que lo cumple. Esta lista es una autoevaluación, no una nota oficial.</p>
         </div>
         <div class="rubric-score" aria-live="polite"><strong id="rubricScore">0</strong><span>/ 10 puntos</span></div>
       </div>
@@ -431,8 +415,8 @@
 
   <footer>
     <div class="container footer-inner">
-      <div><strong>NEXUS TECH</strong><br>Bitácora personal de aprendizaje técnico.</div>
-      <div>HTML · CSS · JavaScript <span aria-hidden="true">|</span> Datos en Supabase.</div>
+      <div><strong>NEXUS / ACADEMIC LAB</strong><br>Bitácora personal de aprendizaje técnico.</div>
+      <div>HTML · CSS · JavaScript <span aria-hidden="true">|</span> Datos en <code>modulos.js</code> o Supabase.</div>
     </div>
   </footer>
 
@@ -456,16 +440,14 @@
     let modules = [];
 
     const rubricCriteria = [
-      { id: "content", title: "Contenido por módulo", points: 3, detail: "Cada ficha tiene 2 instrumentos, 2 programas, 2 herramientas, 3 recursos con enlace, una evidencia y quiz de 3 preguntas. Los resúmenes son propios." },
+      { id: "content", title: "Contenido por módulo", points: 3, detail: "Cada ficha tiene 2 instrumentos, 2 programas, 2 herramientas, 3 recursos con enlace, una evidencia y quiz de 3 preguntas." },
       { id: "interaction", title: "Interactividad y dinamismo", points: 2, detail: "Buscador y filtros, progreso guardado, quiz con retroalimentación y modo claro/oscuro funcionan sin errores." },
       { id: "design", title: "Diseño creativo, intuitivo y accesible", points: 2, detail: "Identidad visual, navegación clara, adaptación a celular, contraste y texto alternativo en imágenes." },
-      { id: "github", title: "GitHub y publicación", points: 2, detail: "README claro, commits frecuentes, GitHub Pages publicado y sin claves ni datos personales." },
-      { id: "domain", title: "Dominio", points: 1, detail: "El alumno  explica sus módulos, el código que realizó y responde una pregunta de repaso." }
+      { id: "github", title: "GitHub y publicación", points: 2, detail: "README claro, commits frecuentes de todos, versión etiquetada, GitHub Pages publicado y sin claves ni datos personales." },
+      { id: "domain", title: "Dominio individual", points: 1, detail: "Cada integrante explica sus módulos, el código que realizó y responde una pregunta de repaso." }
     ];
 
     const STORAGE_KEY = "nexus-bitacora-v1";
-    const MAX_IMAGE_BYTES = 450000; // 450 KB por imagen para evitar llenar el almacenamiento del navegador.
-    const MAX_IMAGES_PER_MODULE = 4;
     const state = loadState();
     let activeModuleId = null;
     let toastTimer = null;
@@ -478,13 +460,11 @@
           theme: saved.theme === "light" ? "light" : "dark",
           completed: Array.isArray(saved.completed) ? saved.completed : [],
           scores: saved.scores && typeof saved.scores === "object" ? saved.scores : {},
-          drafts: saved.drafts && typeof saved.drafts === "object" ? saved.drafts : {},
-          uploads: saved.uploads && typeof saved.uploads === "object" ? saved.uploads : {},
           rubric: saved.rubric && typeof saved.rubric === "object" ? saved.rubric : {}
         };
       } catch (error) {
         console.warn("No se pudieron recuperar los datos guardados:", error);
-        return { theme: "dark", completed: [], scores: {}, drafts: {}, uploads: {}, rubric: {} };
+        return { theme: "dark", completed: [], scores: {}, rubric: {} };
       }
     }
 
@@ -494,7 +474,6 @@
         return true;
       } catch (error) {
         console.error("No se pudo guardar en el almacenamiento local:", error);
-        showToast("No hay espacio suficiente para guardar. Prueba con imágenes más pequeñas.");
         return false;
       }
     }
@@ -508,13 +487,6 @@
         const url = new URL(value);
         return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
       } catch { return null; }
-    }
-
-    function uploadData(moduleId) {
-      if (!state.uploads[moduleId]) state.uploads[moduleId] = { images: [], docs: [] };
-      if (!Array.isArray(state.uploads[moduleId].images)) state.uploads[moduleId].images = [];
-      if (!Array.isArray(state.uploads[moduleId].docs)) state.uploads[moduleId].docs = [];
-      return state.uploads[moduleId];
     }
 
     function showToast(message) {
@@ -591,24 +563,6 @@
 
     function makeList(items) { return `<ul>${items.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`; }
 
-    function renderImages(module) {
-      const stored = uploadData(module.id).images;
-      const configured = Array.isArray(module.images) ? module.images : [];
-      const allImages = stored;
-      if (!allImages.length) return '<p class="editor-help">Todavía no has agregado imágenes a esta ficha.</p>';
-      return `<div class="image-preview-grid">${allImages.map((img, index) => `<div class="preview-tile"><img src="${escapeHTML(img.src)}" alt="${escapeHTML(img.alt || `Imagen ${index + 1} del módulo`)}"><span>${escapeHTML(img.name || img.alt || `Imagen ${index + 1}`)}</span></div>`).join("")}</div>`;
-    }
-
-    function renderUserDocs(module) {
-      const docs = [...(Array.isArray(module.documents) ? module.documents : []), ...uploadData(module.id).docs];
-      if (!docs.length) return '<p class="editor-help">Aún no hay documentos personales agregados.</p>';
-      return `<div class="user-docs">${docs.map((doc, index) => {
-        const valid = safeHttpUrl(doc.url);
-        const removable = index >= (module.documents || []).length;
-        return `<div class="user-doc"><span>${valid ? `<a href="${escapeHTML(valid)}" target="_blank" rel="noopener noreferrer">${escapeHTML(doc.title || "Abrir documento")}</a>` : escapeHTML(doc.title || "Enlace no válido")}</span>${removable ? `<button class="remove-btn" type="button" data-remove-doc="${index - (module.documents || []).length}" aria-label="Eliminar ${escapeHTML(doc.title || "documento")}">Quitar</button>` : ""}</div>`;
-      }).join("")}</div>`;
-    }
-
     function renderQuiz(module) {
       return module.quiz.map((question, index) => `
         <fieldset class="question">
@@ -624,33 +578,12 @@
       if (!module) return;
       activeModuleId = moduleId;
       const dialog = document.getElementById("moduleDialog");
-      const draft = state.drafts[moduleId] || {};
       const lastScore = state.scores[moduleId];
       document.getElementById("dialogEyebrow").textContent = "FICHA TÉCNICA";
       document.getElementById("dialogTitle").textContent = "Módulo " + module.code;
       document.getElementById("dialogTeacher").textContent = module.areaLabel;
       document.getElementById("dialogContent").innerHTML = `
         ${renderFicha(module)}
-
-        <section class="editor-section" aria-labelledby="personal-work-title">
-          <div class="editor-title"><h3 id="personal-work-title">✎ Mi trabajo y mis evidencias</h3><small>Guardado automático en este navegador</small></div>
-          <label class="field-label" for="personalSummary">Mi resumen del módulo</label>
-          <textarea class="control" id="personalSummary" placeholder="Escribe con tus propias palabras: ¿qué aprendiste?, ¿para qué sirve?, ¿cómo lo explicarías con un ejemplo?">${escapeHTML(draft.summary ?? module.personalSummary ?? "")}</textarea>
-          <p class="editor-help">Escribe tu propia explicación y añade ejemplos de clase. Evita copiar el texto de los recursos.</p>
-          <label class="field-label" for="evidenceNotes">Descripción de mi evidencia</label>
-          <textarea class="control" id="evidenceNotes" placeholder="Describe qué evidencia realizaste, qué demuestra y qué falta por mejorar...">${escapeHTML(draft.evidence ?? "")}</textarea>
-          <label class="field-label" for="imageUpload">Agregar imágenes a esta ficha</label>
-          <div class="upload-row"><input id="imageUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple aria-describedby="imageHelp"><span class="pill" id="imageLimit">Máx. ${MAX_IMAGES_PER_MODULE} imágenes guardadas</span></div>
-          <p id="imageHelp" class="editor-help">Formatos JPG, PNG o WebP. Para que el navegador pueda guardarlas, cada imagen debe pesar menos de 450 KB. Para GitHub Pages es mejor incluir archivos optimizados en una carpeta y agregarlos al arreglo <code>images</code> del código.</p>
-          <div id="imagePreviewArea">${renderImages(module)}</div>
-          <label class="field-label">Agregar enlace a un documento</label>
-          <div class="doc-form">
-            <input class="control" id="docTitle" type="text" placeholder="Nombre del documento" aria-label="Nombre del documento">
-            <input class="control" id="docUrl" type="url" placeholder="https://..." aria-label="Enlace del documento">
-            <button class="soft-btn" id="addDocBtn" type="button">Añadir enlace</button>
-          </div>
-          <div id="userDocsArea">${renderUserDocs(module)}</div>
-        </section>
 
         ${module.quiz.length ? `<section class="quiz-section" aria-labelledby="quiz-title">
           <h3 id="quiz-title">◎ Quiz de repaso</h3>
@@ -671,54 +604,6 @@
 
     function bindDetailEvents(module) {
       document.querySelector("[data-goto-quiz]")?.addEventListener("click", () => document.getElementById("quiz-title")?.scrollIntoView({ behavior: "smooth" }));
-      const summary = document.getElementById("personalSummary");
-      const evidence = document.getElementById("evidenceNotes");
-      const persistDraft = () => {
-        if (!state.drafts[module.id]) state.drafts[module.id] = {};
-        state.drafts[module.id].summary = summary.value;
-        state.drafts[module.id].evidence = evidence.value;
-        saveState();
-      };
-      summary.addEventListener("input", persistDraft);
-      evidence.addEventListener("input", persistDraft);
-
-      document.getElementById("imageUpload").addEventListener("change", async event => {
-        const files = Array.from(event.target.files || []);
-        if (!files.length) return;
-        const uploads = uploadData(module.id);
-        const remaining = MAX_IMAGES_PER_MODULE - uploads.images.length;
-        if (remaining <= 0) { showToast(`Ya tienes ${MAX_IMAGES_PER_MODULE} imágenes guardadas en esta ficha.`); event.target.value = ""; return; }
-        const selected = files.slice(0, remaining);
-        for (const file of selected) {
-          if (!file.type.startsWith("image/")) continue;
-          if (file.size > MAX_IMAGE_BYTES) { showToast(`${file.name} supera 450 KB. Optimiza la imagen y vuelve a intentarlo.`); continue; }
-          try {
-            const dataUrl = await readFileAsDataURL(file);
-            uploads.images.push({ src: dataUrl, alt: `Imagen agregada: ${file.name}`, name: file.name });
-          } catch { showToast(`No se pudo leer ${file.name}.`); }
-        }
-        if (saveState()) {
-          document.getElementById("imagePreviewArea").innerHTML = renderImages(module);
-          showToast("Imagen agregada a la ficha.");
-        }
-        event.target.value = "";
-      });
-
-      document.getElementById("addDocBtn").addEventListener("click", () => {
-        const titleInput = document.getElementById("docTitle");
-        const urlInput = document.getElementById("docUrl");
-        const title = titleInput.value.trim();
-        const url = safeHttpUrl(urlInput.value.trim());
-        if (!title || !url) { showToast("Escribe un nombre y una dirección web válida (http o https). "); return; }
-        uploadData(module.id).docs.push({ title, url });
-        if (saveState()) {
-          document.getElementById("userDocsArea").innerHTML = renderUserDocs(module);
-          titleInput.value = ""; urlInput.value = "";
-          showToast("Enlace agregado correctamente.");
-          bindRemoveDocEvents(module);
-        }
-      });
-      bindRemoveDocEvents(module);
 
       document.getElementById("quizForm")?.addEventListener("submit", event => {
         event.preventDefault();
@@ -746,31 +631,6 @@
         renderCards();
         renderDetail(module.id);
         showToast(index >= 0 ? "Módulo retirado de completados." : "¡Módulo marcado como completado!");
-      });
-    }
-
-    function bindRemoveDocEvents(module) {
-      document.querySelectorAll("[data-remove-doc]").forEach(button => {
-        button.addEventListener("click", () => {
-          const index = Number(button.dataset.removeDoc);
-          const docs = uploadData(module.id).docs;
-          if (Number.isInteger(index) && index >= 0 && index < docs.length) {
-            docs.splice(index, 1);
-            saveState();
-            document.getElementById("userDocsArea").innerHTML = renderUserDocs(module);
-            bindRemoveDocEvents(module);
-            showToast("Enlace eliminado de la ficha.");
-          }
-        });
-      });
-    }
-
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error || new Error("No se pudo leer el archivo"));
-        reader.readAsDataURL(file);
       });
     }
 
@@ -824,8 +684,6 @@
       };
       return `<div class="ficha">
         <div class="ficha-head"><h3>${escapeHTML(m.title)}</h3><span class="pill">${m.teacher ? "Profe " + escapeHTML(m.teacher) : "Docente"}</span></div>
-        <p class="ficha-sum">${escapeHTML(m.summary || m.intro || "Resumen en 2 o 3 líneas con tus palabras y 3 cosas que aprendiste.")}</p>
-        ${m.learned.length ? `<ol class="learned">${m.learned.map(x => `<li>${escapeHTML(x)}</li>`).join("")}</ol>` : ""}
         <div class="sec-grid">${SECCIONES.map(s => { const n = count[s.key], low = n < s.min; return `<section class="sec" style="--c:${s.color}"><span class="sec-min${low ? " low" : ""}">${low ? n + "/" : ""}mín. ${s.min}</span><h4>${s.label}</h4>${n || (s.key === "evidence" && m.evidence) ? body[s.key]() : `<p class="hint">${s.hint}</p>`}</section>`; }).join("")}</div>
       </div>`;
     }
